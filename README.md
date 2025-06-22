@@ -1,5 +1,7 @@
 Testowa wersja silnika do gry Full Speed 2
+
 Autor: Łukasz Kamiński
+
 https://github.com/Loleus/fullspeed2
 
 Struktura modularna gry (każdy plik to osobny moduł ES6):
@@ -13,5 +15,5 @@ Struktura modularna gry (każdy plik to osobny moduł ES6):
 
 Każdy moduł odpowiada za wyraźnie wydzieloną część logiki gry.
 W index.html należy użyć <script type="module">.
-
+https://loleus.github.io/fullspeed2/
 Wersja modularna ułatwia rozbudowę silnika (np. wiele aut, AI, multiplayer, różne konfiguracje pojazdów).
