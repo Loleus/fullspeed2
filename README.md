@@ -1,8 +1,5 @@
 Testowa wersja silnika do gry Full Speed 2
 
-Autor: Łukasz Kamiński
-
-
 Struktura modularna gry (każdy plik to osobny moduł ES6):
 - config.js – podstawowa konfiguracja silnika (parametry fizyki, świat, itp.)
 - main.js – inicjalizacja, pętla gry, obsługa canvas, start gry
@@ -12,7 +9,3 @@ Struktura modularna gry (każdy plik to osobny moduł ES6):
 - input.js – obsługa wejścia z klawiatury
 - render.js – rysowanie auta i świata na canvasie
 
-Każdy moduł odpowiada za wyraźnie wydzieloną część logiki gry.
-W index.html należy użyć <script type="module">.
-
-Wersja modularna ułatwia rozbudowę silnika (np. wiele aut, AI, multiplayer, różne konfiguracje pojazdów).
