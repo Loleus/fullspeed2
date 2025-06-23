@@ -5,7 +5,7 @@ export const CONFIG = {
   MASS: 1230, // masa auta w kg
   ACCEL: 0.6, // przyspieszenie
   REVERSE_ACCEL: 0.25, // przyspieszenie na wstecznym
-  BRAKE: 1, // siła hamowania
+  BRAKE: 0.7, // siła hamowania
   FRICTION: 0.015, // tarcie
   DRAG: 0.01, // opór powietrza
   GRIP: 0.5, // przyczepność

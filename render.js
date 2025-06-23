@@ -9,6 +9,7 @@ export function drawCar(ctx, car, camera, carImg, carImgLoaded) {
   ctx.restore();
 }
 
+// Funkcja drawWorld powinna korzystać tylko z worldCanvas (SVG), nie rysować przeszkód ręcznie
 export function drawWorld(ctx, worldC, camera) {
   ctx.save();
   ctx.translate(-camera.x + ctx.canvas.width / 2, -camera.y + ctx.canvas.height / 2);
