@@ -6,7 +6,7 @@ export const CONFIG = {
   ACCEL: 0.6, // przyspieszenie
   REVERSE_ACCEL: 0.25, // przyspieszenie na wstecznym
   BRAKE: 0.7, // siła hamowania
-  FRICTION: 0.015, // tarcie
+  FRICTION: 0.02, // tarcie
   DRAG: 0.01, // opór powietrza
   GRIP: 0.5, // przyczepność
   WHEELBASE: 300, // rozstaw osi
