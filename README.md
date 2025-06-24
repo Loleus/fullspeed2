@@ -7,6 +7,7 @@
 - **car.js** – logika auta, fizyka, tworzenie instancji samochodu (w przyszłości: klasa Car dla wielu aut)
 - **carPhysics.js** – model fizyki pojazdu
 - **world.js** – logika świata, generowanie toru, kolizje, detekcja nawierzchni, kamera
+- **worldPhysics.js** – fizyka kolizji świata: granice, odbicia, wypychanie, wydzielone z world.js
 - **hud.js** – rysowanie liczników i wskaźników (HUD)
 - **input.js** – obsługa wejścia z klawiatury
 - **render.js** – rysowanie auta i świata na canvasie

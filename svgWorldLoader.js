@@ -40,6 +40,26 @@ export async function loadSVGWorld(svgUrl, collisionMapSize = 1000, worldSize = 
     img.src = url;
   });
 
+  // Podział worldCanvas na kafelki 500x500
+  const tileSize = 250;
+  const tiles = [];
+  const numTilesX = Math.ceil(worldSize / tileSize);
+  const numTilesY = Math.ceil(worldSize / tileSize);
+  for (let ty = 0; ty < numTilesY; ++ty) {
+    for (let tx = 0; tx < numTilesX; ++tx) {
+      const tileCanvas = document.createElement('canvas');
+      tileCanvas.width = tileSize;
+      tileCanvas.height = tileSize;
+      const tileCtx = tileCanvas.getContext('2d');
+      tileCtx.drawImage(
+        worldCanvas,
+        tx * tileSize, ty * tileSize, tileSize, tileSize,
+        0, 0, tileSize, tileSize
+      );
+      tiles.push({ x: tx, y: ty, canvas: tileCanvas });
+    }
+  }
+
   // 5. Generowanie mapy kolizji na podstawie id warstw/obiektów
   // Tworzymy mapę typów: collisionTypeMap[ix + iy * collisionMapSize] = 'asphalt' | 'grass' | 'obstacle'
   const collisionTypeMap = new Array(collisionMapSize * collisionMapSize).fill('grass');
@@ -161,6 +181,8 @@ export async function loadSVGWorld(svgUrl, collisionMapSize = 1000, worldSize = 
   return {
     collisionCanvas,
     worldCanvas,
+    tiles,
+    tileSize,
     getSurfaceTypeAt: (x, y) => {
       // x, y w skali świata (0..worldSize)
       // Przeskaluj do collisionMapSize

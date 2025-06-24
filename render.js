@@ -17,4 +17,26 @@ export function drawWorld(ctx, worldC, camera) {
   ctx.restore();
 }
 
-// drawTrack usunięte, bo jest w world.js
+// drawWorldTiled: rysuje tylko widoczne kafelki świata (tileSize przekazuj z world.js)
+export function drawWorldTiled(ctx, tiles, camera, canvasWidth, canvasHeight, tileSize) {
+  ctx.save();
+  ctx.imageSmoothingEnabled = false;
+  // Oblicz zakres widocznych kafelków
+  const left = Math.floor((camera.x - canvasWidth / 2) / tileSize);
+  const right = Math.ceil((camera.x + canvasWidth / 2) / tileSize);
+  const top = Math.floor((camera.y - canvasHeight / 2) / tileSize);
+  const bottom = Math.ceil((camera.y + canvasHeight / 2) / tileSize);
+  for (const tile of tiles) {
+    if (
+      tile.x >= left && tile.x < right &&
+      tile.y >= top && tile.y < bottom
+    ) {
+      ctx.drawImage(
+        tile.canvas,
+        tile.x * tileSize - camera.x + canvasWidth / 2,
+        tile.y * tileSize - camera.y + canvasHeight / 2
+      );
+    }
+  }
+  ctx.restore();
+}

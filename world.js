@@ -6,6 +6,8 @@ export let collisionCanvas = null;
 export let getSurfaceTypeAt = null;
 export let startPos = null;
 export let obstaclePolys = [];
+export let tiles = null;
+export let tileSize = 500;
 
 export async function initWorldFromSVG(svgUrl, collisionMapSize = 1000, worldSize = 4000) {
   const result = await loadSVGWorld(svgUrl, collisionMapSize, worldSize);
@@ -14,6 +16,8 @@ export async function initWorldFromSVG(svgUrl, collisionMapSize = 1000, worldSiz
   getSurfaceTypeAt = result.getSurfaceTypeAt;
   startPos = result.startPos;
   obstaclePolys = result.obstaclePolys || [];
+  tiles = result.tiles;
+  tileSize = result.tileSize || 500;
 }
 
 export function fwd(a) { return { x: Math.cos(a), y: Math.sin(a) }; }

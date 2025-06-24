@@ -27,3 +27,27 @@ export function getWorldBoundCollision(pos, vel, length, width, config) {
   }
   return { collided, newPos, newVel };
 }
+
+export function getWorldBoundCollisionInPlace(pos, vel, length, width, config) {
+  const R = Math.hypot(length, width) * 0.5;
+  let collided = false;
+  if (pos.x - R < 0) {
+    pos.x = R;
+    vel.x = Math.abs(vel.x) * config.WALL_BOUNCE;
+    collided = true;
+  } else if (pos.x + R > config.WORLD.width) {
+    pos.x = config.WORLD.width - R;
+    vel.x = -Math.abs(vel.x) * config.WALL_BOUNCE;
+    collided = true;
+  }
+  if (pos.y - R < 0) {
+    pos.y = R;
+    vel.y = Math.abs(vel.y) * config.WALL_BOUNCE;
+    collided = true;
+  } else if (pos.y + R > config.WORLD.height) {
+    pos.y = config.WORLD.height - R;
+    vel.y = -Math.abs(vel.y) * config.WALL_BOUNCE;
+    collided = true;
+  }
+  return collided;
+}

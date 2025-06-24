@@ -6,8 +6,8 @@ import { CONFIG } from './config.js';
 import { updateCar } from './car.js';
 import { getInputFromKeys, keys } from './input.js';
 import { drawHUD } from './hud.js';
-import { drawCar, drawWorld } from './render.js';
-import { initWorldFromSVG, getSurfaceTypeAt, worldCanvas, updateCamera, getSurfaceParams, startPos, obstaclePolys } from './world.js';
+import { drawCar, drawWorldTiled } from './render.js';
+import { initWorldFromSVG, getSurfaceTypeAt, updateCamera, getSurfaceParams, startPos, obstaclePolys, tiles, tileSize } from './world.js';
 import { createCarImg } from './car.js';
 import { checkCarObstacleCollision } from './obstacles.js';
 
@@ -34,7 +34,9 @@ async function startGame() {
     steering: 0,
     length: 180,
     width: 80,
-    throttle: 0
+    throttle: 0,
+    surfaceType: 'grass',
+    surf: getSurfaceParams('grass')
   };
   carImg = createCarImg('car_X.png').carImg;
   resize();
@@ -63,8 +65,11 @@ function loop(now) {
     frameCount = 0;
   }
   const input = getInputFromKeys();
-  surfaceType = getSurfaceTypeAt(car.pos.x, car.pos.y);
-  surf = getSurfaceParams(surfaceType);
+  const newSurfaceType = getSurfaceTypeAt(car.pos.x, car.pos.y);
+  if (car.surfaceType !== newSurfaceType) {
+    car.surfaceType = newSurfaceType;
+    car.surf = getSurfaceParams(newSurfaceType);
+  }
 
   // Kolizja z przeszkodą: wypychanie i ślizganie
   const obstacleResult = checkCarObstacleCollision(car);
@@ -96,14 +101,14 @@ function loop(now) {
       car.vel.x = 0;
       car.vel.y = 0;
     }
-    surfaceType = 'obstacle';
-    surf = getSurfaceParams(surfaceType);
+    car.surfaceType = 'obstacle';
+    car.surf = getSurfaceParams('obstacle');
   }
 
-  updateCar(car, dt, surf, input, CONFIG);
+  updateCar(car, dt, car.surf, input, CONFIG);
   updateCamera(car, camera, canvas, WORLD);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  if (worldCanvas) ctx.drawImage(worldCanvas, -camera.x + canvas.width/2, -camera.y + canvas.height/2);
+  if (tiles) drawWorldTiled(ctx, tiles, camera, canvas.width, canvas.height, tileSize);
   const imgReady = carImg && carImg.complete && carImg.naturalWidth > 0;
   if (imgReady) {
     drawCar(ctx, car, camera, carImg, imgReady);
