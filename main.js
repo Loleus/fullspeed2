@@ -56,7 +56,8 @@ startGame();
 let fps = 0, lastFpsUpdate = 0, frameCount = 0;
 let lastTime = performance.now();
 function loop(now) {
-  const dt = (now - lastTime) / 16.666;
+  let dt = (now - lastTime) / 16.666;
+  dt = Math.min(dt, 1.5); // clamp dt, by ograniczyć duże przeskoki
   lastTime = now;
   frameCount++;
   if (now - lastFpsUpdate > 500) {
