@@ -3,6 +3,17 @@
 import { fwd, rgt, dot } from '../../core/utils.js';
 import { getWorldBoundCollisionInPlace } from '../../world/worldPhysics.js';
 
+function snapToZero(car, F, input) {
+  const fSpdNow = dot(car.vel, F);
+  if (
+    (car.gear === 'D' && input.down && !input.up && Math.abs(fSpdNow) < 5 / 6.0) ||
+    (car.gear === 'R' && input.up && !input.down && Math.abs(fSpdNow) < 5 / 6.0)
+  ) {
+    car.vel.x = 0;
+    car.vel.y = 0;
+  }
+}
+
 export function updateCarPhysics(car, dt, surf, input, config) {
   const grip = config.GRIP * surf.gripMul;
   const accel = config.ACCEL * surf.accelMul;
@@ -78,16 +89,8 @@ export function updateCarPhysics(car, dt, surf, input, config) {
   car.vel.x *= 1 - config.FRICTION;
   car.vel.y *= 1 - config.FRICTION;
 
-  // SNAP TO ZERO przy hamowaniu (zeruj całą prędkość)
-  const fSpdNow = dot(car.vel, F);
-  if (car.gear === 'D' && input.down && !input.up && Math.abs(fSpdNow) < 5 / 6.0) {
-    car.vel.x = 0;
-    car.vel.y = 0;
-  }
-  if (car.gear === 'R' && input.up && !input.down && Math.abs(fSpdNow) < 5 / 6.0) {
-    car.vel.x = 0;
-    car.vel.y = 0;
-  }
+  // SNAP TO ZERO (przód i tył, cała prędkość)
+  snapToZero(car, F, input);
 
   if (Math.abs(smoothedSteering) > 0.01) {
     const radius = config.WHEELBASE / Math.tan(smoothedSteering);
