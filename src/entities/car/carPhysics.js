@@ -1,7 +1,7 @@
 // carPhysics.js – model fizyki pojazdu (ruch, siły, sterowanie)
 // Wydzielone z car.js dla lepszej modularności i możliwości rozwoju
-import { fwd, rgt, dot } from './world.js';
-import { getWorldBoundCollisionInPlace } from './worldPhysics.js';
+import { fwd, rgt, dot } from '../../core/utils.js';
+import { getWorldBoundCollisionInPlace } from '../../world/worldPhysics.js';
 
 export function updateCarPhysics(car, dt, surf, input, config) {
   const grip = config.GRIP * surf.gripMul;

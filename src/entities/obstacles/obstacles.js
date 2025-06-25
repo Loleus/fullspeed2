@@ -1,5 +1,5 @@
 // obstacles.js – obsługa kolizji z przeszkodami na podstawie mapy kolizji z SVG
-import { obstaclePolys, getSurfaceParams } from './world.js';
+import { obstaclePolys, getSurfaceParams } from '../../world/world.js';
 
 // Główna funkcja: obsługuje kolizję auta z przeszkodami - wypychanie i odbijanie
 export function handleObstacleCollisionWithPolygon(car, config) {

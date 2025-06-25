@@ -1,5 +1,6 @@
 // world.js – logika świata, kolizje, wektory
 import { loadSVGWorld } from './svgWorldLoader.js';
+import { clamp } from '../core/utils.js';
 
 export let worldCanvas = null;
 export let collisionCanvas = null;
@@ -18,14 +19,6 @@ export async function initWorldFromSVG(svgUrl, collisionMapSize = 1000, worldSiz
   obstaclePolys = result.obstaclePolys || [];
   tiles = result.tiles;
   tileSize = result.tileSize || 500;
-}
-
-export function fwd(a) { return { x: Math.cos(a), y: Math.sin(a) }; }
-export function rgt(a) { return { x: Math.cos(a + Math.PI / 2), y: Math.sin(a + Math.PI / 2) }; }
-export function dot(a, b) { return a.x * b.x + a.y * b.y; }
-
-export function clamp(v, min, max) {
-  return v < min ? min : v > max ? max : v;
 }
 
 export function updateCamera(car, camera, canvas, WORLD) {
