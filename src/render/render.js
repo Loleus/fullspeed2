@@ -1,5 +1,6 @@
 // render.js – rysowanie auta, toru, świata
 import { drawCar } from '../entities/car/carRenderer.js';
+import { tileSize } from '../world/world.js';
 
 // Funkcja drawWorld powinna korzystać tylko z worldCanvas (SVG), nie rysować przeszkód ręcznie
 export function drawWorld(ctx, worldC, camera) {
@@ -39,7 +40,7 @@ export function renderFrame(ctx, tiles, camera, car, carImg, fps, keys, config) 
   
   // Rysuj świat
   if (tiles) {
-    drawWorldTiled(ctx, tiles, camera, ctx.canvas.width, ctx.canvas.height, 500); // tileSize = 500
+    drawWorldTiled(ctx, tiles, camera, ctx.canvas.width, ctx.canvas.height, tileSize); // użyj dynamicznego tileSize
   }
   
   // Rysuj auto

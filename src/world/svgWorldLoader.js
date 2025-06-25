@@ -64,7 +64,7 @@ export async function loadSVGWorld(svgUrl, collisionMapSize = 1000, worldSize = 
     });
 
     // Podział worldCanvas na kafelki 500x500
-    const tileSize = 500;
+    const tileSize = 250;
     const tiles = [];
     const numTilesX = Math.ceil(worldSize / tileSize);
     const numTilesY = Math.ceil(worldSize / tileSize);
