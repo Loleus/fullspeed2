@@ -37,6 +37,6 @@ export function getSurfaceParams(type) {
     case 'obstacle':
       return { gripMul: 0, accelMul: 0, reverseMul: 0, brakeMul: 0, isObstacle: true };
     default:
-      return { gripMul: 0.25, accelMul: 0.3, reverseMul: 0.3, brakeMul: 0.4 };
+      return { gripMul: 1, accelMul: 0.7, reverseMul: 0.7, brakeMul: 1 };
   }
 }
