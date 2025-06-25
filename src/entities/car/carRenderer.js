@@ -20,7 +20,14 @@ export function drawCar(ctx, car, camera, carImg, carImgLoaded) {
 }
 
 export function createCarImage(src) {
+  console.log('Ładowanie obrazu auta z:', src);
   const carImg = new Image();
+  carImg.onload = () => {
+    console.log('Obraz auta załadowany pomyślnie');
+  };
+  carImg.onerror = (error) => {
+    console.error('Błąd ładowania obrazu auta:', error);
+  };
   carImg.src = src;
   return carImg;
 }

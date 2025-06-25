@@ -27,12 +27,24 @@ const gameLoop = new GameLoop();
 
 // ───────── INICJALIZACJA ─────────
 async function startGame() {
-  await initWorldFromSVG('../assets/scenes/SCENE_1.svg', 1000, 4000);
-  const pos = (startPos && startPos.x !== undefined && startPos.y !== undefined) ? startPos : { x: 50, y: 50 };
-  car = createCarWithPosition(pos);
-  carImg = createCarImage('../assets/images/car_X.png');
-  resize();
-  requestAnimationFrame(loop);
+  try {
+    console.log('Rozpoczynam inicjalizację gry...');
+    await initWorldFromSVG('./assets/scenes/SCENE_1.svg', 1000, 4000);
+    const pos = (startPos && startPos.x !== undefined && startPos.y !== undefined) ? startPos : { x: 50, y: 50 };
+    car = createCarWithPosition(pos);
+    carImg = createCarImage('./assets/images/car_X.png');
+    console.log('Gry zainicjalizowana pomyślnie');
+    resize();
+    requestAnimationFrame(loop);
+  } catch (error) {
+    console.error('Błąd podczas inicjalizacji gry:', error);
+    // Wyświetl błąd na ekranie
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = 'red';
+    ctx.font = '20px Arial';
+    ctx.fillText('Błąd ładowania: ' + error.message, 10, 50);
+  }
 }
 
 function resize() {
