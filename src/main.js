@@ -21,6 +21,8 @@ const ctx = canvas.getContext('2d');
 let car = null;
 let carImg = null;
 const camera = { x: 0, y: 0 };
+let lastUpPressed = false;
+let lastDownPressed = false;
 
 // ───────── PĘTLA GRY ─────────
 const gameLoop = new GameLoop();
@@ -70,13 +72,15 @@ function loop(now) {
     car.surf = getSurfaceParams(newSurfaceType);
   }
 
-  // Prosta logika zmiany biegu
+  // Edge detection przy zmianie biegu
   const speed = Math.hypot(car.vel.x, car.vel.y);
   if (speed < CONFIG.STOP_EPS) {
-    if (input.up && !input.down) setCarGear(car, 'D');
-    else if (input.down && !input.up) setCarGear(car, 'R');
+    if (input.up && !lastUpPressed && !input.down) setCarGear(car, 'D');
+    else if (input.down && !lastDownPressed && !input.up) setCarGear(car, 'R');
     else if (!input.up && !input.down) setCarGear(car, 0);
   }
+  lastUpPressed = input.up;
+  lastDownPressed = input.down;
 
   // Kolizja z przeszkodą: wypychanie i ślizganie
   handleObstacleCollisionWithPolygon(car, CONFIG);

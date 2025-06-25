@@ -23,14 +23,41 @@ export function updateCarPhysics(car, dt, surf, input, config) {
   const fSpd = dot(car.vel, F);
 
   let thrust = 0;
+  const maxSpeed = 60 / 6.0; // ok. 10 m/s (60 km/h)
   if (car.gear === 'D') {
     if (input.up && !input.down) thrust = accel;
-    else if (input.down && !input.up && fSpd > config.STOP_EPS) thrust = -brake;
+    else if (input.down && !input.up && fSpd > config.STOP_EPS) {
+      // Dynamiczne hamowanie
+      let dynBrake = brake;
+      if (Math.abs(fSpd) < 10 / 6.0) {
+        const factor = 1 + 2 * (1 - Math.abs(fSpd) / maxSpeed); // k=2
+        dynBrake *= factor;
+      }
+      thrust = -dynBrake;
+      // SNAP TO ZERO
+      if (Math.abs(fSpd) < 5 / 6.0) {
+        car.vel.x -= F.x * fSpd;
+        car.vel.y -= F.y * fSpd;
+      }
+    }
     else if (input.down && !input.up && Math.abs(fSpd) <= config.STOP_EPS) thrust = 0;
     else thrust = 0;
   } else if (car.gear === 'R') {
     if (input.down && !input.up) thrust = -reverse;
-    else if (input.up && !input.down && fSpd < -config.STOP_EPS) thrust = brake;
+    else if (input.up && !input.down && fSpd < -config.STOP_EPS) {
+      // Dynamiczne hamowanie na wstecznym
+      let dynBrake = brake;
+      if (Math.abs(fSpd) < 10 / 6.0) {
+        const factor = 1 + 2 * (1 - Math.abs(fSpd) / maxSpeed);
+        dynBrake *= factor;
+      }
+      thrust = dynBrake;
+      // SNAP TO ZERO
+      if (Math.abs(fSpd) < 5 / 6.0) {
+        car.vel.x -= F.x * fSpd;
+        car.vel.y -= F.y * fSpd;
+      }
+    }
     else if (input.up && !input.down && Math.abs(fSpd) <= config.STOP_EPS) thrust = 0;
     else thrust = 0;
   } else if (car.gear === 0) {
@@ -50,6 +77,17 @@ export function updateCarPhysics(car, dt, surf, input, config) {
   car.vel.y += (engineY + dragY + slideY) / config.MASS;
   car.vel.x *= 1 - config.FRICTION;
   car.vel.y *= 1 - config.FRICTION;
+
+  // SNAP TO ZERO przy hamowaniu (zeruj całą prędkość)
+  const fSpdNow = dot(car.vel, F);
+  if (car.gear === 'D' && input.down && !input.up && Math.abs(fSpdNow) < 5 / 6.0) {
+    car.vel.x = 0;
+    car.vel.y = 0;
+  }
+  if (car.gear === 'R' && input.up && !input.down && Math.abs(fSpdNow) < 5 / 6.0) {
+    car.vel.x = 0;
+    car.vel.y = 0;
+  }
 
   if (Math.abs(smoothedSteering) > 0.01) {
     const radius = config.WHEELBASE / Math.tan(smoothedSteering);
