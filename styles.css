@@ -1,0 +1,28 @@
+html,
+body {
+  margin: 0;
+  overflow: hidden;
+  background: #fff;
+}
+
+canvas {
+  display: block;
+  background: rgb(61, 74, 28); /* ciemnozielony, trawa */
+}
+
+#engine-info {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 4px 0 2px 0;
+  color: red;
+  font-family: Arial, sans-serif;
+  font-size: 22px;
+  text-align: center;
+  background: transparent;
+  z-index: 1000;
+  pointer-events: none;
+  user-select: none;
+} 

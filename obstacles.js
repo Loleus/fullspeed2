@@ -1,45 +1,51 @@
 // obstacles.js – obsługa kolizji z przeszkodami na podstawie mapy kolizji z SVG
-import { getSurfaceTypeAt, obstaclePolys } from './world.js';
+import { obstaclePolys, getSurfaceParams } from './world.js';
 
-// Odbij i natychmiast wypchnij auto poza przeszkodę (ramka: odbicie na zewnątrz, normalnie do krawędzi)
-export function handleObstacleCollision(car, config) {
-  if (getSurfaceTypeAt(car.pos.x, car.pos.y) === 'obstacle') {
-    // Szukaj najbliższego kierunku na zewnątrz przeszkody (w promieniu 360 stopni)
-    const EPS = 1.5;
-    let best = null, bestDist = 9999;
-    for (let a = 0; a < 360; a += 10) {
-      const nx = Math.cos(a * Math.PI / 180), ny = Math.sin(a * Math.PI / 180);
-      let tx = car.pos.x, ty = car.pos.y, steps = 0;
-      while (getSurfaceTypeAt(tx, ty) === 'obstacle' && steps < 30) {
-        tx += nx * EPS;
-        ty += ny * EPS;
-        steps++;
+// Główna funkcja: obsługuje kolizję auta z przeszkodami - wypychanie i odbijanie
+export function handleObstacleCollisionWithPolygon(car, config) {
+  const obstacleResult = checkCarObstacleCollision(car);
+  if (obstacleResult.collided) {
+    const poly = obstacleResult.index !== undefined ? obstaclePolys[obstacleResult.index] : null;
+    if (poly) {
+      // Znajdź najbliższy punkt polygona
+      let minDist = Infinity, closest = null;
+      for (let i = 0; i < poly.length; ++i) {
+        const p = poly[i];
+        const dx = car.pos.x - p.x, dy = car.pos.y - p.y;
+        const dist = dx*dx + dy*dy;
+        if (dist < minDist) { minDist = dist; closest = p; }
       }
-      if (steps < bestDist) {
-        bestDist = steps;
-        best = { nx, ny };
+      
+      // Oblicz normalną od najbliższego punktu
+      let normal = { x: car.pos.x - closest.x, y: car.pos.y - closest.y };
+      let len = Math.hypot(normal.x, normal.y);
+      if (len > 0) { normal.x /= len; normal.y /= len; }
+      
+      // Wypchnij auto poza przeszkodę
+      let pushSteps = 0;
+      while (checkCarObstacleCollision(car, [poly]).collided && pushSteps < 10) {
+        car.pos.x += normal.x;
+        car.pos.y += normal.y;
+        pushSteps++;
       }
+      
+      // Odbij prędkość względem normalnej
+      const vDotN = car.vel.x * normal.x + car.vel.y * normal.y;
+      const tangent = { x: car.vel.x - vDotN * normal.x, y: car.vel.y - vDotN * normal.y };
+      const vNormal = { x: -vDotN * normal.x * config.WALL_BOUNCE, y: -vDotN * normal.y * config.WALL_BOUNCE };
+      car.vel.x = tangent.x + vNormal.x;
+      car.vel.y = tangent.y + vNormal.y;
+    } else {
+      // Jeśli nie ma polygona, zatrzymaj auto
+      car.vel.x = 0;
+      car.vel.y = 0;
     }
-    // Cofnij auto na zewnątrz przeszkody w najlepszym kierunku
-    let i = 0;
-    while (getSurfaceTypeAt(car.pos.x, car.pos.y) === 'obstacle' && i < 30) {
-      car.pos.x += best.nx * EPS;
-      car.pos.y += best.ny * EPS;
-      i++;
-    }
-    // Odbij prędkość względem normalnej
-    const vDotN = car.vel.x * best.nx + car.vel.y * best.ny;
-    car.vel.x = (car.vel.x - 2 * vDotN * best.nx) * config.WALL_BOUNCE;
-    car.vel.y = (car.vel.y - 2 * vDotN * best.ny) * config.WALL_BOUNCE;
+    
+    // Ustaw typ powierzchni na obstacle
+    car.surfaceType = 'obstacle';
+    car.surf = getSurfaceParams('obstacle');
   }
 }
-
-export function isCarOnObstacle(car) {
-  return getSurfaceTypeAt(car.pos.x, car.pos.y) === 'obstacle';
-}
-
-// Eksport funkcji getObstacleCollision z world.js (forward)
-export { getObstacleCollision } from './world.js';
 
 // Sprawdza kolizję prostokąta auta z polygonem przeszkody (SAT)
 function rectPolyCollision(rect, poly) {

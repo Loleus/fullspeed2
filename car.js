@@ -1,6 +1,7 @@
 // car.js – logika auta, tworzenie instancji samochodu
 // Fizyka pojazdu wydzielona do carPhysics.js
 import { updateCarPhysics } from './carPhysics.js';
+import { getSurfaceParams } from './world.js';
 
 export function createCar(trackXY, T_START) {
   return {
@@ -13,6 +14,21 @@ export function createCar(trackXY, T_START) {
     throttle: 0
   };
 }
+
+export function createCarWithPosition(pos) {
+  return {
+    pos: { ...pos },
+    vel: { x: 0, y: 0 },
+    angle: Math.PI / 4,
+    steering: 0,
+    length: 180,
+    width: 80,
+    throttle: 0,
+    surfaceType: 'grass',
+    surf: getSurfaceParams('grass')
+  };
+}
+
 export function createCarImg(src) {
   const carImg = new Image();
   carImg.src = src;

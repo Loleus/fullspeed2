@@ -40,3 +40,29 @@ export function drawWorldTiled(ctx, tiles, camera, canvasWidth, canvasHeight, ti
   }
   ctx.restore();
 }
+
+// Główna funkcja renderowania - cała logika renderowania w jednym miejscu
+export function renderFrame(ctx, tiles, camera, car, carImg, fps, keys, config) {
+  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  
+  // Rysuj świat
+  if (tiles) {
+    drawWorldTiled(ctx, tiles, camera, ctx.canvas.width, ctx.canvas.height, 500); // tileSize = 500
+  }
+  
+  // Rysuj auto
+  const imgReady = carImg && carImg.complete && carImg.naturalWidth > 0;
+  if (imgReady) {
+    drawCar(ctx, car, camera, carImg, imgReady);
+  } else {
+    // Fallback - czerwony prostokąt gdy obrazek nie jest załadowany
+    ctx.save();
+    ctx.fillStyle = 'red';
+    ctx.translate(
+      Math.round(ctx.canvas.width / 2),
+      Math.round(ctx.canvas.height / 2)
+    );
+    ctx.fillRect(-40, -20, 80, 40);
+    ctx.restore();
+  }
+}
