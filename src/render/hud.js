@@ -8,8 +8,8 @@ export function getCarSpeedKmh(car) {
   return Math.hypot(car.vel.x, car.vel.y) * 6.0;
 }
 export function getCarGear(car, config) {
-  const fSpd = car.vel.x * Math.cos(car.angle) + car.vel.y * Math.sin(car.angle);
-  if (fSpd < -config.STOP_EPS) return 'R';
+  if (car.gear === 'R') return 'R';
+  if (car.gear === 0) return 0;
   const speedKmh = getCarSpeedKmh(car);
   if (speedKmh < 1) return 0;
   for (let i = 1; i < GEAR_SPEEDS.length; ++i) {

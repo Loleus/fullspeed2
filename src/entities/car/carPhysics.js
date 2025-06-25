@@ -22,11 +22,21 @@ export function updateCarPhysics(car, dt, surf, input, config) {
   const R = rgt(car.angle);
   const fSpd = dot(car.vel, F);
 
-  const thrust = input.up && !input.down
-    ? (fSpd < -config.STOP_EPS ? brake : accel)
-    : input.down && !input.up
-      ? (fSpd > config.STOP_EPS ? -brake : -reverse)
-      : 0;
+  let thrust = 0;
+  if (car.gear === 'D') {
+    if (input.up && !input.down) thrust = accel;
+    else if (input.down && !input.up && fSpd > config.STOP_EPS) thrust = -brake;
+    else if (input.down && !input.up && Math.abs(fSpd) <= config.STOP_EPS) thrust = 0;
+    else thrust = 0;
+  } else if (car.gear === 'R') {
+    if (input.down && !input.up) thrust = -reverse;
+    else if (input.up && !input.down && fSpd < -config.STOP_EPS) thrust = brake;
+    else if (input.up && !input.down && Math.abs(fSpd) <= config.STOP_EPS) thrust = 0;
+    else thrust = 0;
+  } else if (car.gear === 0) {
+    if ((input.up && !input.down && fSpd > config.STOP_EPS) || (input.down && !input.up && fSpd < -config.STOP_EPS)) thrust = -brake;
+    else thrust = 0;
+  }
   car.throttle += (thrust - car.throttle) * config.THROTTLE_RAMP;
   const engineX = F.x * car.throttle * config.ENGINE_MULTIPLIER * dt;
   const engineY = F.y * car.throttle * config.ENGINE_MULTIPLIER * dt;
@@ -48,6 +58,17 @@ export function updateCarPhysics(car, dt, surf, input, config) {
 
   car.pos.x += car.vel.x;
   car.pos.y += car.vel.y;
+
+  // Clamp: nie pozwól zmienić kierunku jazdy na przeciwny do biegu
+  const newFSpd = dot(car.vel, F);
+  if (car.gear === 'D' && newFSpd < 0) {
+    // Wyzeruj prędkość w osi jazdy, zachowaj boczną
+    car.vel.x -= F.x * newFSpd;
+    car.vel.y -= F.y * newFSpd;
+  } else if (car.gear === 'R' && newFSpd > 0) {
+    car.vel.x -= F.x * newFSpd;
+    car.vel.y -= F.y * newFSpd;
+  }
 
   // Kolizje z granicami świata
   getWorldBoundCollisionInPlace(car.pos, car.vel, car.length, car.width, config);

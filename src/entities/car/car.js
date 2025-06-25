@@ -11,7 +11,8 @@ export function createCar(trackXY, T_START) {
     steering: 0,
     length: 180,
     width: 80,
-    throttle: 0
+    throttle: 0,
+    gear: 'D'
   };
 }
 
@@ -25,11 +26,16 @@ export function createCarWithPosition(pos) {
     width: 80,
     throttle: 0,
     surfaceType: 'grass',
-    surf: getSurfaceParams('grass')
+    surf: getSurfaceParams('grass'),
+    gear: 'D'
   };
 }
 
 // Eksportuj updateCar jako delegację do updateCarPhysics
 export function updateCar(car, dt, surf, input, config) {
   updateCarPhysics(car, dt, surf, input, config);
+}
+
+export function setCarGear(car, gear) {
+  car.gear = gear;
 }

@@ -3,7 +3,7 @@
 // Konfiguracja silnika znajduje się w osobnym pliku config.js
 
 import { CONFIG } from './config/gameConfig.js';
-import { updateCar, createCarWithPosition } from './entities/car/car.js';
+import { updateCar, createCarWithPosition, setCarGear } from './entities/car/car.js';
 import { getInputFromKeys, keys } from './input/input.js';
 import { drawHUD } from './render/hud.js';
 import { renderFrame } from './render/render.js';
@@ -68,6 +68,14 @@ function loop(now) {
   if (car.surfaceType !== newSurfaceType) {
     car.surfaceType = newSurfaceType;
     car.surf = getSurfaceParams(newSurfaceType);
+  }
+
+  // Prosta logika zmiany biegu
+  const speed = Math.hypot(car.vel.x, car.vel.y);
+  if (speed < CONFIG.STOP_EPS) {
+    if (input.up && !input.down) setCarGear(car, 'D');
+    else if (input.down && !input.up) setCarGear(car, 'R');
+    else if (!input.up && !input.down) setCarGear(car, 0);
   }
 
   // Kolizja z przeszkodą: wypychanie i ślizganie
