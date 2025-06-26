@@ -1,16 +1,15 @@
-// carStats.js – logika statystyk auta
-
+// hud.js – rysowanie liczników i logika HUD
+let rpmDisplay = 1200;
 export const GEAR_SPEEDS = [0, 70, 110, 150, 180, 200, 220];
 export const MAX_RPM = 8500;
 export const IDLE_RPM = 1200;
 
 export function getCarSpeedKmh(car) {
-  return Math.abs(car.speed) * 3.6;
+  return Math.hypot(car.vel.x, car.vel.y) * 6.0;
 }
-
 export function getCarGear(car, config) {
-  if (car.gear === 'R') return 'R';
-  if (car.gear === 0) return 0;
+  const fSpd = car.vel.x * Math.cos(car.angle) + car.vel.y * Math.sin(car.angle);
+  if (fSpd < -config.STOP_EPS) return 'R';
   const speedKmh = getCarSpeedKmh(car);
   if (speedKmh < 1) return 0;
   for (let i = 1; i < GEAR_SPEEDS.length; ++i) {
@@ -18,8 +17,6 @@ export function getCarGear(car, config) {
   }
   return 6;
 }
-
-let rpmDisplay = IDLE_RPM;
 export function getCarRpm(car, config, keys) {
   const speedKmh = getCarSpeedKmh(car);
   const gear = getCarGear(car, config);
@@ -44,4 +41,19 @@ export function getCarRpm(car, config, keys) {
   ratio = Math.max(0, Math.min(1, ratio));
   const [rpmMin, rpmMax] = rpmRanges[gear];
   return Math.round(rpmMin + ratio * (rpmMax - rpmMin));
-} 
+}
+
+export function drawHUD(ctx, fps, car, config, keys) {
+  ctx.save();
+  ctx.font = '24px Arial';
+  ctx.fillStyle = '#fff';
+  ctx.textBaseline = 'top';
+  ctx.fillText('FPS: ' + fps, 12, 8);
+  const speed = getCarSpeedKmh(car);
+  ctx.fillText('Prędkość: ' + Math.round(speed) + ' km/h', 12, 40);
+  const gear = getCarGear(car, config);
+  ctx.fillText('Bieg: ' + (gear === 0 ? '0' : gear), 12, 72);
+  const rpm = getCarRpm(car, config, keys);
+  ctx.fillText('Obroty: ' + rpm + ' rpm', 12, 104);
+  ctx.restore();
+}
