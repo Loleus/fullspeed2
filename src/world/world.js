@@ -1,6 +1,7 @@
 // world.js – logika świata, kolizje, wektory
 import { loadSVGWorld } from './svgWorldLoader.js';
 import { clamp } from '../core/utils.js';
+import { getTiles, getTileSize } from './tiles.js';
 
 export let worldCanvas = null;
 export let collisionCanvas = null;
@@ -32,4 +33,32 @@ export function getSurfaceParams(type) {
     default:
       return { gripMul: 1, accelMul: 0.7, reverseMul: 0.7, brakeMul: 1 };
   }
+}
+
+export function getTilesGetter() {
+  return getTiles();
+}
+
+export function getTileSizeGetter() {
+  return getTileSize();
+}
+
+export function getWorldCanvas() {
+  return worldCanvas;
+}
+
+export function getCollisionCanvas() {
+  return collisionCanvas;
+}
+
+export function getSurfaceTypeAtGetter() {
+  return getSurfaceTypeAt;
+}
+
+export function getStartPos() {
+  return startPos;
+}
+
+export function getObstaclePolys() {
+  return obstaclePolys;
 }

@@ -2,6 +2,8 @@
 // Użycie: import { loadSVGWorld } from './svgWorldLoader.js';
 // await loadSVGWorld('SCENE_1.svg', 1000, 4000)
 
+import { initTiles } from './tiles.js';
+
 export async function loadSVGWorld(svgUrl, collisionMapSize = 1000, worldSize = 4000) {
   try {
     // 1. Pobierz SVG jako tekst
@@ -65,23 +67,7 @@ export async function loadSVGWorld(svgUrl, collisionMapSize = 1000, worldSize = 
 
     // Podział worldCanvas na kafelki
     const tileSize = 256;
-    const tiles = [];
-    const numTilesX = Math.ceil(worldSize / tileSize);
-    const numTilesY = Math.ceil(worldSize / tileSize);
-    for (let ty = 0; ty < numTilesY; ++ty) {
-      for (let tx = 0; tx < numTilesX; ++tx) {
-        const tileCanvas = document.createElement('canvas');
-        tileCanvas.width = tileSize;
-        tileCanvas.height = tileSize;
-        const tileCtx = tileCanvas.getContext('2d');
-        tileCtx.drawImage(
-          worldCanvas,
-          tx * tileSize, ty * tileSize, tileSize, tileSize,
-          0, 0, tileSize, tileSize
-        );
-        tiles.push({ x: tx, y: ty, canvas: tileCanvas });
-      }
-    }
+    initTiles(worldCanvas, tileSize, worldSize);
 
     // 5. Generowanie mapy kolizji na podstawie id warstw/obiektów
     // Tworzymy mapę typów: collisionTypeMap[ix + iy * collisionMapSize] = 'asphalt' | 'grass' | 'obstacle'
@@ -204,8 +190,6 @@ export async function loadSVGWorld(svgUrl, collisionMapSize = 1000, worldSize = 
     return {
       collisionCanvas,
       worldCanvas,
-      tiles,
-      tileSize,
       getSurfaceTypeAt: (x, y) => {
         // x, y w skali świata (0..worldSize)
         // Przeskaluj do collisionMapSize

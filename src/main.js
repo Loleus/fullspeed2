@@ -4,7 +4,7 @@
 
 import { CONFIG } from './config/gameConfig.js';
 import { updateCar, createCarWithPosition, setCarGear } from './entities/car/car.js';
-import { getInputFromKeys, keys } from './input/input.js';
+import { getInputFromKeys } from './input/gameInput.js';
 import { drawHUD } from './render/hud.js';
 import { renderFrame } from './render/render.js';
 import { initWorldFromSVG, getSurfaceTypeAt, getSurfaceParams, startPos, tiles } from './world/world.js';
@@ -92,8 +92,8 @@ function loop(now) {
   updateCamera(car, camera, canvas, WORLD);
   
   // Renderowanie
-  renderFrame(ctx, camera, car, carImg, gameLoop.getFPS(), keys, CONFIG);
-  drawHUD(ctx, gameLoop.getFPS(), car, CONFIG, keys);
+  renderFrame(ctx, camera, car, carImg, gameLoop.getFPS(), input, CONFIG);
+  drawHUD(ctx, gameLoop.getFPS(), car, CONFIG, input);
   
   requestAnimationFrame(loop);
 }
