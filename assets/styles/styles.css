@@ -7,7 +7,7 @@ body {
 
 canvas {
   display: block;
-  background: rgb(61, 74, 28); /* ciemnozielony, trawa */
+  background: #1E560B; /* ciemnozielony, trawa */
 }
 
 #engine-info {

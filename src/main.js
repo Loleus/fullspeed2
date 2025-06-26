@@ -86,6 +86,8 @@ function loop(now) {
   handleObstacleCollisionWithPolygon(car, CONFIG);
 
   updateCar(car, dt, car.surf, input, CONFIG);
+  // Aktualizuj prędkość auta do FVP
+  car.speed = Math.hypot(car.vel.x, car.vel.y);
   updateCamera(car, camera, canvas, WORLD);
   
   // Renderowanie
