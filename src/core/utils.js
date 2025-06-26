@@ -22,4 +22,15 @@ export function hypot(a, b) {
 
 export function round(value) {
   return Math.round(value);
+}
+
+export function lerp(a, b, t) {
+  return a + (b - a) * t;
+}
+
+export function lerpAngle(a, b, t) {
+  let diff = b - a;
+  while (diff > Math.PI) diff -= 2 * Math.PI;
+  while (diff < -Math.PI) diff += 2 * Math.PI;
+  return a + diff * t;
 } 

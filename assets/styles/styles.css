@@ -25,4 +25,18 @@ canvas {
   z-index: 1000;
   pointer-events: none;
   user-select: none;
+}
+
+#camera-info {
+  position: fixed;
+  right: 12px;
+  top: 12px;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  color: #fff;
+  background: rgba(0,0,0,0.5);
+  padding: 6px 14px;
+  border-radius: 8px;
+  z-index: 1000;
+  pointer-events: none;
 } 

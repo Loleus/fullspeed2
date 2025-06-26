@@ -7,7 +7,8 @@ import { updateCar, createCarWithPosition, setCarGear } from './entities/car/car
 import { getInputFromKeys, keys } from './input/input.js';
 import { drawHUD } from './render/hud.js';
 import { renderFrame } from './render/render.js';
-import { initWorldFromSVG, getSurfaceTypeAt, updateCamera, getSurfaceParams, startPos, tiles } from './world/world.js';
+import { initWorldFromSVG, getSurfaceTypeAt, getSurfaceParams, startPos, tiles } from './world/world.js';
+import { updateCamera } from './render/cameraClassic.js';
 import { handleObstacleCollisionWithPolygon } from './entities/obstacles/obstacles.js';
 import { GameLoop } from './core/gameLoop.js';
 import { createCarImage } from './entities/car/carRenderer.js';
@@ -91,7 +92,7 @@ function loop(now) {
   updateCamera(car, camera, canvas, WORLD);
   
   // Renderowanie
-  renderFrame(ctx, tiles, camera, car, carImg, gameLoop.getFPS(), keys, CONFIG);
+  renderFrame(ctx, camera, car, carImg, gameLoop.getFPS(), keys, CONFIG);
   drawHUD(ctx, gameLoop.getFPS(), car, CONFIG, keys);
   
   requestAnimationFrame(loop);

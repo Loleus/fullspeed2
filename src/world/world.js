@@ -8,7 +8,7 @@ export let getSurfaceTypeAt = null;
 export let startPos = null;
 export let obstaclePolys = [];
 export let tiles = null;
-export let tileSize = 500;
+export let tileSize = 256;
 
 export async function initWorldFromSVG(svgUrl, collisionMapSize = 1000, worldSize = 4000) {
   const result = await loadSVGWorld(svgUrl, collisionMapSize, worldSize);
@@ -18,14 +18,7 @@ export async function initWorldFromSVG(svgUrl, collisionMapSize = 1000, worldSiz
   startPos = result.startPos;
   obstaclePolys = result.obstaclePolys || [];
   tiles = result.tiles;
-  tileSize = result.tileSize || 500;
-}
-
-export function updateCamera(car, camera, canvas, WORLD) {
-  const targetX = clamp(car.pos.x, canvas.width / 2, WORLD.width - canvas.width / 2);
-  const targetY = clamp(car.pos.y, canvas.height / 2, WORLD.height - canvas.height / 2);
-  camera.x += (targetX - camera.x) * 0.12;
-  camera.y += (targetY - camera.y) * 0.12;
+  tileSize = result.tileSize || 256;
 }
 
 export function getSurfaceParams(type) {

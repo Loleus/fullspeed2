@@ -34,47 +34,20 @@ export function updateCarPhysics(car, dt, surf, input, config) {
   const fSpd = dot(car.vel, F);
 
   let thrust = 0;
-  const maxSpeed = 60 / 6.0; // ok. 10 m/s (60 km/h)
   if (car.gear === 'D') {
     if (input.up && !input.down) thrust = accel;
     else if (input.down && !input.up && fSpd > config.STOP_EPS) {
-      // Dynamiczne hamowanie
-      let dynBrake = brake;
-      if (Math.abs(fSpd) < 10 / 6.0) {
-        const factor = 1 + 2 * (1 - Math.abs(fSpd) / maxSpeed); // k=2
-        dynBrake *= factor;
-      }
-      thrust = -dynBrake;
-      // SNAP TO ZERO
-      if (Math.abs(fSpd) < 5 / 6.0) {
-        car.vel.x -= F.x * fSpd;
-        car.vel.y -= F.y * fSpd;
-      }
+      thrust = -brake;
     }
-    else if (input.down && !input.up && Math.abs(fSpd) <= config.STOP_EPS) thrust = 0;
-    else thrust = 0;
   } else if (car.gear === 'R') {
     if (input.down && !input.up) thrust = -reverse;
     else if (input.up && !input.down && fSpd < -config.STOP_EPS) {
-      // Dynamiczne hamowanie na wstecznym
-      let dynBrake = brake;
-      if (Math.abs(fSpd) < 10 / 6.0) {
-        const factor = 1 + 2 * (1 - Math.abs(fSpd) / maxSpeed);
-        dynBrake *= factor;
-      }
-      thrust = dynBrake;
-      // SNAP TO ZERO
-      if (Math.abs(fSpd) < 5 / 6.0) {
-        car.vel.x -= F.x * fSpd;
-        car.vel.y -= F.y * fSpd;
-      }
+      thrust = brake;
     }
-    else if (input.up && !input.down && Math.abs(fSpd) <= config.STOP_EPS) thrust = 0;
-    else thrust = 0;
   } else if (car.gear === 0) {
     if ((input.up && !input.down && fSpd > config.STOP_EPS) || (input.down && !input.up && fSpd < -config.STOP_EPS)) thrust = -brake;
-    else thrust = 0;
   }
+  
   car.throttle += (thrust - car.throttle) * config.THROTTLE_RAMP;
   const engineX = F.x * car.throttle * config.ENGINE_MULTIPLIER * dt;
   const engineY = F.y * car.throttle * config.ENGINE_MULTIPLIER * dt;
@@ -83,6 +56,9 @@ export function updateCarPhysics(car, dt, surf, input, config) {
   const lat = dot(car.vel, R);
   const slideX = -lat * R.x * grip * dt;
   const slideY = -lat * R.y * grip * dt;
+  
+  // Zapisz siłę poślizgu dla kamery FVP
+  car.slideForce = Math.hypot(slideX, slideY);
 
   car.vel.x += (engineX + dragX + slideX) / config.MASS;
   car.vel.y += (engineY + dragY + slideY) / config.MASS;
@@ -103,7 +79,6 @@ export function updateCarPhysics(car, dt, surf, input, config) {
   // Clamp: nie pozwól zmienić kierunku jazdy na przeciwny do biegu
   const newFSpd = dot(car.vel, F);
   if (car.gear === 'D' && newFSpd < 0) {
-    // Wyzeruj prędkość w osi jazdy, zachowaj boczną
     car.vel.x -= F.x * newFSpd;
     car.vel.y -= F.y * newFSpd;
   } else if (car.gear === 'R' && newFSpd > 0) {

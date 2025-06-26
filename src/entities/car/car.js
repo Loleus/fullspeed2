@@ -12,7 +12,9 @@ export function createCar(trackXY, T_START) {
     length: 180,
     width: 80,
     throttle: 0,
-    gear: 'D'
+    gear: 'D',
+    speed: 0,
+    slideForce: 0
   };
 }
 
@@ -27,13 +29,21 @@ export function createCarWithPosition(pos) {
     throttle: 0,
     surfaceType: 'grass',
     surf: getSurfaceParams('grass'),
-    gear: 'D'
+    gear: 'D',
+    speed: 0,
+    slideForce: 0
   };
+}
+
+// Funkcja do aktualizacji prędkości auta w km/h
+export function updateCarSpeed(car) {
+  car.speed = Math.hypot(car.vel.x, car.vel.y) * 6.0; // konwersja do km/h
 }
 
 // Eksportuj updateCar jako delegację do updateCarPhysics
 export function updateCar(car, dt, surf, input, config) {
   updateCarPhysics(car, dt, surf, input, config);
+  updateCarSpeed(car); // aktualizuj prędkość po fizyce
 }
 
 export function setCarGear(car, gear) {

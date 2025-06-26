@@ -63,8 +63,8 @@ export async function loadSVGWorld(svgUrl, collisionMapSize = 1000, worldSize = 
       img.src = url;
     });
 
-    // Podział worldCanvas na kafelki 500x500
-    const tileSize = 250;
+    // Podział worldCanvas na kafelki
+    const tileSize = 256;
     const tiles = [];
     const numTilesX = Math.ceil(worldSize / tileSize);
     const numTilesY = Math.ceil(worldSize / tileSize);
