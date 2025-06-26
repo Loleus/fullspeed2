@@ -3,11 +3,12 @@ body {
   margin: 0;
   overflow: hidden;
   background: #fff;
+  background: url('../images/grass.png') repeat;
 }
 
 canvas {
   display: block;
-  background: #1E560B; /* ciemnozielony, trawa */
+  background: none; /* ciemnozielony, trawa */
 }
 
 #engine-info {

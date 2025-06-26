@@ -31,6 +31,23 @@ export async function loadSVGWorld(svgUrl, collisionMapSize = 1000, worldSize = 
       throw new Error('Nieprawidłowy plik SVG');
     }
     
+    // Usuń całkowicie warstwę tła (BACKGROUND) z SVG przed rasteryzacją
+    const bgElem = svgElem.querySelector('[id^="BACKGROUND"]');
+    if (bgElem) {
+      bgElem.parentNode.removeChild(bgElem);
+    }
+
+    // Dodaj przezroczysty prostokąt na samym początku SVG, by wymusić przezroczyste tło
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const transparentRect = doc.createElementNS(svgNS, 'rect');
+    transparentRect.setAttribute('x', '0');
+    transparentRect.setAttribute('y', '0');
+    transparentRect.setAttribute('width', svgElem.getAttribute('width') || '100%');
+    transparentRect.setAttribute('height', svgElem.getAttribute('height') || '100%');
+    transparentRect.setAttribute('fill', 'white');
+    transparentRect.setAttribute('fill-opacity', '0');
+    svgElem.insertBefore(transparentRect, svgElem.firstChild);
+    
     console.log('SVG sparsowane pomyślnie');
 
     // 3. Rasteryzacja do collisionMapSize (np. 1000x1000) – mapa kolizji
@@ -44,6 +61,7 @@ export async function loadSVGWorld(svgUrl, collisionMapSize = 1000, worldSize = 
     await new Promise((resolve) => {
       const img = new window.Image();
       img.onload = () => {
+        collisionCtx.clearRect(0, 0, collisionCanvas.width, collisionCanvas.height); // przezroczyste tło
         collisionCtx.drawImage(img, 0, 0, collisionMapSize, collisionMapSize);
         URL.revokeObjectURL(url);
         resolve();
@@ -56,9 +74,26 @@ export async function loadSVGWorld(svgUrl, collisionMapSize = 1000, worldSize = 
     worldCanvas.width = worldSize;
     worldCanvas.height = worldSize;
     const worldCtx = worldCanvas.getContext('2d');
+
+    // Najpierw rasteryzuj teksturę trawy na całym worldCanvas (kafelkowanie grass.png)
+    await new Promise((resolve) => {
+      const grassImg = new window.Image();
+      grassImg.onload = () => {
+        for (let x = 0; x < worldSize; x += 512) {
+          for (let y = 0; y < worldSize; y += 512) {
+            worldCtx.drawImage(grassImg, x, y, 512, 512);
+          }
+        }
+        resolve();
+      };
+      grassImg.src = 'assets/images/grass.png';
+    });
+
+    // Następnie rasteryzuj SVG na worldCanvas
     await new Promise((resolve) => {
       const img = new window.Image();
       img.onload = () => {
+        // NIE czyść worldCanvas! Chcemy mieć trawę pod spodem
         worldCtx.drawImage(img, 0, 0, worldSize, worldSize);
         resolve();
       };
@@ -75,14 +110,8 @@ export async function loadSVGWorld(svgUrl, collisionMapSize = 1000, worldSize = 
 
     // Przechodzimy po elementach SVG i rysujemy je na collisionCanvas z unikalnym kolorem dla każdego typu
     // 1. Najpierw tło (background)
-    const bg = svgElem.querySelector('[id^="BACKGROUND_"]');
-    if (bg) {
-      collisionCtx.save();
-      collisionCtx.fillStyle = '#010101'; // unikalny kolor dla tła
-      collisionCtx.fillRect(0, 0, collisionMapSize, collisionMapSize);
-      collisionCtx.restore();
-      for (let i = 0; i < collisionTypeMap.length; ++i) collisionTypeMap[i] = 'grass';
-    }
+    // const bg = svgElem.querySelector('[id^="BACKGROUND_"]');
+    // if (bg) { ... }
     // 2. Droga (ROAD_*)
 
     const road = svgElem.querySelector('[id^="ROAD_"]');
@@ -205,4 +234,14 @@ export async function loadSVGWorld(svgUrl, collisionMapSize = 1000, worldSize = 
     console.error('Błąd podczas ładowania SVG:', error);
     throw error;
   }
+}
+
+// Pomocnicza funkcja do ładowania obrazków asynchronicznie
+async function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new window.Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
 }
