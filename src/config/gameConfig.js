@@ -18,6 +18,5 @@ export const CONFIG = {
   STOP_EPS: 0.1, // próg zatrzymania
   WALL_BOUNCE: 0.35, // odbicie od ściany
   THROTTLE_RAMP: 0.04, // narastanie gazu
-  THROTTLE_BRAKE_RAMP: 0.15, // szybsze narastanie hamowania
   WORLD: { width: 6144, height: 6144} // rozmiar świata
 };
