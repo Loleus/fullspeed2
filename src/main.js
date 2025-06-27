@@ -16,7 +16,7 @@ import { createCarImage } from './entities/car/carRenderer.js';
 // ───────── ŚWIAT I CANVAS ─────────
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-export const worldSize = 4096;
+const worldSize = CONFIG.WORLD.width;
 // ───────── AUTO ─────────
 let car = null;
 let carImg = null;
@@ -34,6 +34,8 @@ async function startGame() {
     await initWorldFromSVG('./assets/scenes/SCENE_2.svg', 1024, worldSize);
     const pos = (startPos && startPos.x !== undefined && startPos.y !== undefined) ? startPos : { x: 50, y: 50 };
     car = createCarWithPosition(pos);
+    car.surfaceType = getSurfaceTypeAt(car.pos.x, car.pos.y);
+    car.surf = getSurfaceParams(car.surfaceType);
     carImg = createCarImage('./assets/images/car_X.png');
     console.log('Gry zainicjalizowana pomyślnie');
     resize();

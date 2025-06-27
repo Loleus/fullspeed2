@@ -3,13 +3,6 @@ import { drawCar } from '../entities/car/carRenderer.js';
 import { getTiles, getTileSize } from '../world/tiles.js';
 import { getCameraMode } from '../input/gameInput.js';
 import { updateFvpCameraAndScreen, fvpCamera } from './cameraFvp.js';
-import { loadSVGWorld } from '../world/svgWorldLoader.js';
-
-// Globalna kolejka kafelków do dorysowania między klatkami
-let tileDrawQueue = [];
-let lastCenterX = null;
-let lastCenterY = null;
-let lastAngle = null;
 
 function getTileShift(tileSize) {
   if ((tileSize & (tileSize - 1)) !== 0) {

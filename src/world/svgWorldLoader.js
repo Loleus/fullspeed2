@@ -1,6 +1,6 @@
 // svgWorldLoader.js – ładowanie, rasteryzacja i mapa kolizji świata z SVG
 // Użycie: import { loadSVGWorld } from './svgWorldLoader.js';
-// await loadSVGWorld('SCENE_1.svg', 1000, 4000)
+// await loadSVGWorld('SCENE_2.svg', 1024, 4096)
 
 import { initTiles } from './tiles.js';
 

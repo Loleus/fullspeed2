@@ -39,8 +39,4 @@ export function createCarImage(src) {
   };
   carImg.src = src;
   return carImg;
-}
-
-export function isImageLoaded(img) {
-  return img && img.complete && img.naturalWidth > 0;
 } 

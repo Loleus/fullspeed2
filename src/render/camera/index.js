@@ -1,12 +1,11 @@
 // camera/index.js – zunifikowany system kamer
 import { clamp } from '../../core/utils.js';
 import { lerp, lerpAngle } from '../../core/utils.js';
-import { worldSize } from '../../world/world.js';
 
 // Classic camera
 const classicCamera = {
   x: 0, y: 0,
-  update(car, canvas, world) {
+  update(car, canvas, worldSize) {
     const targetX = clamp(car.pos.x, canvas.width / 2, worldSize - canvas.width / 2);
     const targetY = clamp(car.pos.y, canvas.height / 2, worldSize - canvas.height / 2);
     this.x += (targetX - this.x) * 0.12;
@@ -20,7 +19,7 @@ const classicCamera = {
 // FVP camera
 const fvpCamera = {
   x: 0, y: 0, angle: 0, speedLerp: 0, currentOffsetX: 0,
-  update(car, canvas, world) {
+  update(car, canvas, worldSize) {
     // Pozycja
     const baseLerpSpeed = 0.02;
     const slideLerpSpeed = Math.max(0.005, baseLerpSpeed - car.slideForce * 15);
@@ -76,15 +75,15 @@ export const CameraManager = {
   getMode() {
     return currentMode;
   },
-  update(car, canvas, world) {
-    cameras[currentMode].update(car, canvas, world);
+  update(car, canvas, worldSize) {
+    cameras[currentMode].update(car, canvas, worldSize);
   },
   getScreenTransform() {
     return cameras[currentMode].getScreenTransform();
   }
 };
 
-export function updateCamera(car, camera, canvas, world) {
+export function updateCamera(car, camera, canvas, worldSize) {
   const targetX = clamp(car.pos.x, canvas.width / 2, worldSize - canvas.width / 2);
   const targetY = clamp(car.pos.y, canvas.height / 2, worldSize - canvas.height / 2);
   camera.x += (targetX - camera.x) * 0.12;
