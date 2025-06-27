@@ -41,7 +41,7 @@ export function updateCarPhysics(car, dt, surf, input, config, worldSize) {
     }
   } else if (car.gear === 'R') {
     if (input.down && !input.up) thrust = -reverse;
-    else if (input.up && !input.down && fSpd < -config.STOP_EPS) {
+    else if (input.up && !input.down) {
       thrust = brake;
     }
   } else if (car.gear === 0) {
