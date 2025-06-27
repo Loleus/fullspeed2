@@ -1,22 +1,6 @@
 // car.js – logika auta, tworzenie instancji samochodu
 // Fizyka pojazdu wydzielona do carPhysics.js
 import { updateCarPhysics } from './carPhysics.js';
-import { getSurfaceParams } from '../../world/world.js';
-
-export function createCar(trackXY, T_START) {
-  return {
-    pos: trackXY(T_START),
-    vel: { x: 0, y: 0 },
-    angle: Math.PI / 4,
-    steering: 0,
-    length: 180,
-    width: 80,
-    throttle: 0,
-    gear: 'D',
-    speed: 0,
-    slideForce: 0
-  };
-}
 
 export function createCarWithPosition(pos) {
   return {
@@ -27,8 +11,6 @@ export function createCarWithPosition(pos) {
     length: 180,
     width: 80,
     throttle: 0,
-    surfaceType: 'grass',
-    surf: getSurfaceParams('grass'),
     gear: 'D',
     speed: 0,
     slideForce: 0
@@ -41,8 +23,8 @@ export function updateCarSpeed(car) {
 }
 
 // Eksportuj updateCar jako delegację do updateCarPhysics
-export function updateCar(car, dt, surf, input, config) {
-  updateCarPhysics(car, dt, surf, input, config);
+export function updateCar(car, dt, surf, input, config, worldSize) {
+  updateCarPhysics(car, dt, surf, input, config, worldSize);
   updateCarSpeed(car); // aktualizuj prędkość po fizyce
 }
 

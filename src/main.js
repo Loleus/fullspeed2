@@ -14,10 +14,9 @@ import { GameLoop } from './core/gameLoop.js';
 import { createCarImage } from './entities/car/carRenderer.js';
 
 // ───────── ŚWIAT I CANVAS ─────────
-const WORLD = CONFIG.WORLD;
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-
+const worldSize = CONFIG.WORLD.width;
 // ───────── AUTO ─────────
 let car = null;
 let carImg = null;
@@ -32,9 +31,11 @@ const gameLoop = new GameLoop();
 async function startGame() {
   try {
     console.log('Rozpoczynam inicjalizację gry...');
-    await initWorldFromSVG('./assets/scenes/SCENE_1.svg', 1000, 4000);
+    await initWorldFromSVG('./assets/scenes/SCENE_2.svg', 1024, worldSize);
     const pos = (startPos && startPos.x !== undefined && startPos.y !== undefined) ? startPos : { x: 50, y: 50 };
     car = createCarWithPosition(pos);
+    car.surfaceType = getSurfaceTypeAt(car.pos.x, car.pos.y);
+    car.surf = getSurfaceParams(car.surfaceType);
     carImg = createCarImage('./assets/images/car_X.png');
     console.log('Gry zainicjalizowana pomyślnie');
     resize();
@@ -53,7 +54,7 @@ async function startGame() {
 function resize() {
   canvas.width = innerWidth;
   canvas.height = innerHeight;
-  if (car) updateCamera(car, camera, canvas, WORLD);
+  if (car) updateCamera(car, camera, canvas, { width: worldSize, height: worldSize });
 }
 window.addEventListener('resize', resize);
 
@@ -86,10 +87,10 @@ function loop(now) {
   // Kolizja z przeszkodą: wypychanie i ślizganie
   handleObstacleCollisionWithPolygon(car, CONFIG);
 
-  updateCar(car, dt, car.surf, input, CONFIG);
+  updateCar(car, dt, car.surf, input, CONFIG, worldSize);
   // Aktualizuj prędkość auta do FVP
   car.speed = Math.hypot(car.vel.x, car.vel.y);
-  updateCamera(car, camera, canvas, WORLD);
+  updateCamera(car, camera, canvas, { width: worldSize, height: worldSize });
   
   // Renderowanie
   renderFrame(ctx, camera, car, carImg, gameLoop.getFPS(), input, CONFIG);

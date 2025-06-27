@@ -1,13 +1,14 @@
 // tiles.js – zarządzanie kafelkami świata
-
 let tiles = [];
 let tileSize = 256;
+let numTilesX = 0;
+let numTilesY = 0;
 
 export function initTiles(worldCanvas, newTileSize, worldSize) {
   tileSize = newTileSize;
-  tiles = [];
-  const numTilesX = Math.ceil(worldSize / tileSize);
-  const numTilesY = Math.ceil(worldSize / tileSize);
+  numTilesX = Math.ceil(worldSize / tileSize);
+  numTilesY = Math.ceil(worldSize / tileSize);
+  tiles = Array.from({ length: numTilesY }, () => Array(numTilesX));
   for (let ty = 0; ty < numTilesY; ++ty) {
     for (let tx = 0; tx < numTilesX; ++tx) {
       const tileCanvas = document.createElement('canvas');
@@ -19,7 +20,7 @@ export function initTiles(worldCanvas, newTileSize, worldSize) {
         tx * tileSize, ty * tileSize, tileSize, tileSize,
         0, 0, tileSize, tileSize
       );
-      tiles.push({ x: tx, y: ty, canvas: tileCanvas });
+      tiles[ty][tx] = { x: tx, y: ty, canvas: tileCanvas };
     }
   }
 }
@@ -30,4 +31,12 @@ export function getTiles() {
 
 export function getTileSize() {
   return tileSize;
+}
+
+export function getNumTilesX() {
+  return numTilesX;
+}
+
+export function getNumTilesY() {
+  return numTilesY;
 } 

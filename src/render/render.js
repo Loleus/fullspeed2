@@ -1,15 +1,8 @@
 // render.js – rysowanie auta, toru, świata
 import { drawCar } from '../entities/car/carRenderer.js';
-import { getTiles, getTileSize } from '../world/tiles.js';
+import { getTiles, getTileSize, getNumTilesX, getNumTilesY } from '../world/tiles.js';
 import { getCameraMode } from '../input/gameInput.js';
 import { updateFvpCameraAndScreen, fvpCamera } from './cameraFvp.js';
-import { loadSVGWorld } from '../world/svgWorldLoader.js';
-
-// Globalna kolejka kafelków do dorysowania między klatkami
-let tileDrawQueue = [];
-let lastCenterX = null;
-let lastCenterY = null;
-let lastAngle = null;
 
 function getTileShift(tileSize) {
   if ((tileSize & (tileSize - 1)) !== 0) {
@@ -31,38 +24,21 @@ export function drawWorldTiled(ctx, camera, canvasWidth, canvasHeight, car = nul
   ctx.save();
   ctx.imageSmoothingEnabled = false;
 
-  let cx, cy, angle;
   if (getCameraMode() === 'fvp' && car && fvpScreen) {
     ctx.translate(fvpScreen.screenX, fvpScreen.screenY);
     ctx.rotate(-fvpCamera.angle);
     ctx.translate(-car.pos.x, -car.pos.y);
     const diag = Math.sqrt(canvasWidth * canvasWidth + canvasHeight * canvasHeight);
-    const radius = diag / 2 + getTileSize() * 2;
-    const cxCar = car.pos.x;
-    const cyCar = car.pos.y;
-    for (const tile of getTiles()) {
-      const x0 = tile.x * getTileSize();
-      const y0 = tile.y * getTileSize();
-      const x1 = x0 + getTileSize();
-      const y1 = y0 + getTileSize();
-      // Sprawdź, czy środek LUB dowolny róg kafelka wpada w okrąg renderowania
-      const points = [
-        {x: x0, y: y0},
-        {x: x1, y: y0},
-        {x: x0, y: y1},
-        {x: x1, y: y1},
-        {x: x0 + getTileSize()/2, y: y0 + getTileSize()/2} // środek
-      ];
-      let visible = false;
-      for (const p of points) {
-        const dx = p.x - cxCar;
-        const dy = p.y - cyCar;
-        if (dx * dx + dy * dy < radius * radius) {
-          visible = true;
-          break;
-        }
-      }
-      if (visible) {
+    const radius = diag / 2;
+    const shift = getTileShift(getTileSize());
+    const minX = Math.max(0, ((car.pos.x - radius) >> shift));
+    const maxX = Math.min(getNumTilesX(), ((car.pos.x + radius) >> shift) + 1);
+    const minY = Math.max(0, ((car.pos.y - radius) >> shift));
+    const maxY = Math.min(getNumTilesY(), ((car.pos.y + radius) >> shift) + 1);
+    const tiles = getTiles();
+    for (let ty = minY; ty < maxY; ++ty) {
+      for (let tx = minX; tx < maxX; ++tx) {
+        const tile = tiles[ty][tx];
         ctx.drawImage(
           tile.canvas,
           tile.x * getTileSize(),
@@ -79,11 +55,12 @@ export function drawWorldTiled(ctx, camera, canvasWidth, canvasHeight, car = nul
     const top = ((camera.y - canvasHeight / 2) >> shift) - margin;
     const bottom = ((camera.y + canvasHeight / 2) >> shift) + margin;
     ctx.translate(-camera.x + canvasWidth / 2, -camera.y + canvasHeight / 2);
-    for (const tile of getTiles()) {
-      if (
-        tile.x >= left && tile.x < right &&
-        tile.y >= top && tile.y < bottom
-      ) {
+    const tiles = getTiles();
+    for (let ty = top; ty < bottom; ++ty) {
+      if (ty < 0 || ty >= getNumTilesY()) continue;
+      for (let tx = left; tx < right; ++tx) {
+        if (tx < 0 || tx >= getNumTilesX()) continue;
+        const tile = tiles[ty][tx];
         ctx.drawImage(
           tile.canvas,
           tile.x * getTileSize(),
