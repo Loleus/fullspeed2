@@ -33,22 +33,34 @@ export function updateCarPhysics(car, dt, surf, input, config, worldSize) {
   const R = rgt(car.angle);
   const fSpd = dot(car.vel, F);
 
-  let thrust = 0;
-  if (car.gear === 'D') {
-    if (input.up && !input.down) thrust = accel;
-    else if (input.down && !input.up && fSpd > config.STOP_EPS) {
-      thrust = -brake;
+  // Hamowanie: działa bezpośrednio na prędkość, throttle tylko do gazu
+  const isBraking = (
+    (car.gear === 'D' && input.down && !input.up && fSpd > config.STOP_EPS) ||
+    (car.gear === 'R' && input.up && !input.down && fSpd < -config.STOP_EPS)
+  );
+
+  if (isBraking) {
+    car.throttle = 0;
+    car.vel.x -= F.x * brake * Math.sign(fSpd);
+    car.vel.y -= F.y * brake * Math.sign(fSpd);
+    if (Math.abs(fSpd) < 1) {
+      car.vel.x = 0;
+      car.vel.y = 0;
     }
-  } else if (car.gear === 'R') {
-    if (input.down && !input.up) thrust = -reverse;
-    else if (input.up && !input.down) {
-      thrust = brake;
+  } else {
+    let thrust = 0;
+    if (car.gear === 'D') {
+      if (input.up && !input.down) thrust = accel;
+    } else if (car.gear === 'R') {
+      if (input.down && !input.up) thrust = -reverse;
     }
-  } else if (car.gear === 0) {
-    if ((input.up && !input.down && fSpd > config.STOP_EPS) || (input.down && !input.up && fSpd < -config.STOP_EPS)) thrust = -brake;
+    if (thrust !== 0) {
+      car.throttle += (thrust - car.throttle) * config.THROTTLE_RAMP;
+    } else {
+      car.throttle *= 0.95;
+    }
   }
-  
-  car.throttle += (thrust - car.throttle) * config.THROTTLE_RAMP;
+
   const engineX = F.x * car.throttle * config.ENGINE_MULTIPLIER * dt;
   const engineY = F.y * car.throttle * config.ENGINE_MULTIPLIER * dt;
   const dragX = -car.vel.x * config.DRAG * dt;
