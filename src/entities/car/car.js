@@ -23,8 +23,8 @@ export function updateCarSpeed(car) {
 }
 
 // Eksportuj updateCar jako delegację do updateCarPhysics
-export function updateCar(car, dt, surf, input, config) {
-  updateCarPhysics(car, dt, surf, input, config);
+export function updateCar(car, dt, surf, input, config, worldSize) {
+  updateCarPhysics(car, dt, surf, input, config, worldSize);
   updateCarSpeed(car); // aktualizuj prędkość po fizyce
 }
 

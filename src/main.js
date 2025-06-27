@@ -87,7 +87,7 @@ function loop(now) {
   // Kolizja z przeszkodą: wypychanie i ślizganie
   handleObstacleCollisionWithPolygon(car, CONFIG);
 
-  updateCar(car, dt, car.surf, input, CONFIG);
+  updateCar(car, dt, car.surf, input, CONFIG, worldSize);
   // Aktualizuj prędkość auta do FVP
   car.speed = Math.hypot(car.vel.x, car.vel.y);
   updateCamera(car, camera, canvas, { width: worldSize, height: worldSize });

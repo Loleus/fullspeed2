@@ -14,7 +14,7 @@ function snapToZero(car, F, input) {
   }
 }
 
-export function updateCarPhysics(car, dt, surf, input, config) {
+export function updateCarPhysics(car, dt, surf, input, config, worldSize) {
   const grip = config.GRIP * surf.gripMul;
   const accel = config.ACCEL * surf.accelMul;
   const reverse = config.REVERSE_ACCEL * surf.reverseMul;
@@ -87,7 +87,7 @@ export function updateCarPhysics(car, dt, surf, input, config) {
   }
 
   // Kolizje z granicami świata
-  getWorldBoundCollisionInPlace(car.pos, car.vel, car.length, car.width, config);
+  getWorldBoundCollisionInPlace(car.pos, car.vel, car.length, car.width, config, worldSize);
 
   if (Math.hypot(car.vel.x, car.vel.y) < config.STOP_EPS) {
     car.vel.x = 0;

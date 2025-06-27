@@ -18,5 +18,5 @@ export const CONFIG = {
   STOP_EPS: 0.1, // próg zatrzymania
   WALL_BOUNCE: 0.35, // odbicie od ściany
   THROTTLE_RAMP: 0.04, // narastanie gazu
-  WORLD: { width: 6144, height: 6144 } // rozmiar świata
+  WORLD: { width: 6144, height: 6144} // rozmiar świata
 };
