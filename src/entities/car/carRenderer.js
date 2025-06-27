@@ -10,11 +10,11 @@ export function drawCar(ctx, car, camera, carImg, carImgLoaded) {
     ctx.translate(0, 0);
     ctx.rotate(car.angle);
   } else {
-    ctx.translate(
-      car.pos.x - camera.x + ctx.canvas.width / 2, 
-      car.pos.y - camera.y + ctx.canvas.height / 2
-    );
-    ctx.rotate(car.angle);
+  ctx.translate(
+    car.pos.x - camera.x + ctx.canvas.width / 2, 
+    car.pos.y - camera.y + ctx.canvas.height / 2
+  );
+  ctx.rotate(car.angle);
   }
   
   if (carImgLoaded) {

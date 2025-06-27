@@ -4,8 +4,11 @@
 
 import { initTiles } from './tiles.js';
 
-export async function loadSVGWorld(svgUrl, collisionMapSize = 1000, worldSize = 4000) {
+export async function loadSVGWorld(svgUrl, collisionMapSize, worldSize) {
   try {
+    // Stałe rozmiary (potęgi dwójki)
+    const svgSize = 128; // Rozmiar SVG (viewBox 0 0 128 128)
+    
     // 1. Pobierz SVG jako tekst
     console.log('Ładowanie SVG z:', svgUrl);
     const response = await fetch(svgUrl);
@@ -42,15 +45,15 @@ export async function loadSVGWorld(svgUrl, collisionMapSize = 1000, worldSize = 
     const transparentRect = doc.createElementNS(svgNS, 'rect');
     transparentRect.setAttribute('x', '0');
     transparentRect.setAttribute('y', '0');
-    transparentRect.setAttribute('width', svgElem.getAttribute('width') || '100%');
-    transparentRect.setAttribute('height', svgElem.getAttribute('height') || '100%');
+    transparentRect.setAttribute('width', svgSize);
+    transparentRect.setAttribute('height', svgSize);
     transparentRect.setAttribute('fill', 'white');
     transparentRect.setAttribute('fill-opacity', '0');
     svgElem.insertBefore(transparentRect, svgElem.firstChild);
     
     console.log('SVG sparsowane pomyślnie');
 
-    // 3. Rasteryzacja do collisionMapSize (np. 1000x1000) – mapa kolizji
+    // 3. Rasteryzacja do collisionMapSize (np. 1024x1024) – mapa kolizji
     const collisionCanvas = document.createElement('canvas');
     collisionCanvas.width = collisionMapSize;
     collisionCanvas.height = collisionMapSize;
@@ -69,7 +72,7 @@ export async function loadSVGWorld(svgUrl, collisionMapSize = 1000, worldSize = 
       img.src = url;
     });
 
-    // 4. Rasteryzacja do worldSize (np. 4000x4000) – grafika świata
+    // 4. Rasteryzacja do worldSize (np. 4096x4096) – grafika świata
     const worldCanvas = document.createElement('canvas');
     worldCanvas.width = worldSize;
     worldCanvas.height = worldSize;
@@ -117,7 +120,7 @@ export async function loadSVGWorld(svgUrl, collisionMapSize = 1000, worldSize = 
     const road = svgElem.querySelector('[id^="ROAD_"]');
     if (road) {
       // Rysuj na collisionCanvas z innym kolorem
-      const roadSvg = `<svg xmlns='http://www.w3.org/2000/svg' width='${collisionMapSize}' height='${collisionMapSize}' viewBox='0 0 100 100'>${road.outerHTML}</svg>`;
+      const roadSvg = `<svg xmlns='http://www.w3.org/2000/svg' width='${collisionMapSize}' height='${collisionMapSize}' viewBox='0 0 ${svgSize} ${svgSize}'>${road.outerHTML}</svg>`;
       const roadImg = new window.Image();
       await new Promise((resolve) => {
         roadImg.onload = () => {
@@ -140,7 +143,7 @@ export async function loadSVGWorld(svgUrl, collisionMapSize = 1000, worldSize = 
     // 3. Przeszkoda (obstacle)
     const obs = svgElem.querySelector('#obstacle, #OBSTACLE, [id^="obstacle"], [id^="OBSTACLE"]');
     if (obs) {
-      const obsSvg = `<svg xmlns='http://www.w3.org/2000/svg' width='${collisionMapSize}' height='${collisionMapSize}' viewBox='0 0 100 100'>${obs.outerHTML}</svg>`;
+      const obsSvg = `<svg xmlns='http://www.w3.org/2000/svg' width='${collisionMapSize}' height='${collisionMapSize}' viewBox='0 0 ${svgSize} ${svgSize}'>${obs.outerHTML}</svg>`;
       const obsImg = new window.Image();
       await new Promise((resolve) => {
         obsImg.onload = () => {
@@ -169,20 +172,20 @@ export async function loadSVGWorld(svgUrl, collisionMapSize = 1000, worldSize = 
         const cx = parseFloat(startElem.getAttribute('cx'));
         const cy = parseFloat(startElem.getAttribute('cy'));
         if (!isNaN(cx) && !isNaN(cy)) {
-          startPos = { x: cx / 100 * worldSize, y: cy / 100 * worldSize };
+          startPos = { x: cx / svgSize * worldSize, y: cy / svgSize * worldSize };
         }
       } else if (startElem.tagName === 'rect') {
         const x = parseFloat(startElem.getAttribute('x'));
         const y = parseFloat(startElem.getAttribute('y'));
         if (!isNaN(x) && !isNaN(y)) {
-          startPos = { x: x / 100 * worldSize, y: y / 100 * worldSize };
+          startPos = { x: x / svgSize * worldSize, y: y / svgSize * worldSize };
         }
       } else if (startElem.hasAttribute('transform')) {
         // Próba wyciągnięcia translate z transform
         const tr = startElem.getAttribute('transform');
         const match = /translate\(([-\d.]+)[ ,]+([\-\d.]+)\)/.exec(tr);
         if (match) {
-          startPos = { x: parseFloat(match[1]) / 100 * worldSize, y: parseFloat(match[2]) / 100 * worldSize };
+          startPos = { x: parseFloat(match[1]) / svgSize * worldSize, y: parseFloat(match[2]) / svgSize * worldSize };
         }
       }
     }
@@ -205,7 +208,7 @@ export async function loadSVGWorld(svgUrl, collisionMapSize = 1000, worldSize = 
           // fallback: niech będzie pusta tablica
           pt = null;
         }
-        if (pt) points.push({ x: pt.x / 100 * worldSize, y: pt.y / 100 * worldSize });
+        if (pt) points.push({ x: pt.x / svgSize * worldSize, y: pt.y / svgSize * worldSize });
       }
       return points.length > 2 ? points : null;
     }

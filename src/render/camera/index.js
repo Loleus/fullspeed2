@@ -1,13 +1,14 @@
 // camera/index.js – zunifikowany system kamer
 import { clamp } from '../../core/utils.js';
 import { lerp, lerpAngle } from '../../core/utils.js';
+import { worldSize } from '../../world/world.js';
 
 // Classic camera
 const classicCamera = {
   x: 0, y: 0,
   update(car, canvas, world) {
-    const targetX = clamp(car.pos.x, canvas.width / 2, world.width - canvas.width / 2);
-    const targetY = clamp(car.pos.y, canvas.height / 2, world.height - canvas.height / 2);
+    const targetX = clamp(car.pos.x, canvas.width / 2, worldSize - canvas.width / 2);
+    const targetY = clamp(car.pos.y, canvas.height / 2, worldSize - canvas.height / 2);
     this.x += (targetX - this.x) * 0.12;
     this.y += (targetY - this.y) * 0.12;
   },
@@ -81,4 +82,11 @@ export const CameraManager = {
   getScreenTransform() {
     return cameras[currentMode].getScreenTransform();
   }
-}; 
+};
+
+export function updateCamera(car, camera, canvas, world) {
+  const targetX = clamp(car.pos.x, canvas.width / 2, worldSize - canvas.width / 2);
+  const targetY = clamp(car.pos.y, canvas.height / 2, worldSize - canvas.height / 2);
+  camera.x += (targetX - camera.x) * 0.12;
+  camera.y += (targetY - camera.y) * 0.12;
+} 

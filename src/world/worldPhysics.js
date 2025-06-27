@@ -1,5 +1,6 @@
 // worldPhysics.js – fizyka świata: kolizje z granicami, przeszkodami, itp.
 // Wydzielone z world.js
+import { worldSize } from './world.js';
 
 // Kolizja z granicami świata (ekranu)
 export function getWorldBoundCollisionInPlace(pos, vel, length, width, config) {
@@ -9,8 +10,8 @@ export function getWorldBoundCollisionInPlace(pos, vel, length, width, config) {
     pos.x = R;
     vel.x = Math.abs(vel.x) * config.WALL_BOUNCE;
     collided = true;
-  } else if (pos.x + R > config.WORLD.width) {
-    pos.x = config.WORLD.width - R;
+  } else if (pos.x + R > worldSize) {
+    pos.x = worldSize - R;
     vel.x = -Math.abs(vel.x) * config.WALL_BOUNCE;
     collided = true;
   }
@@ -18,8 +19,8 @@ export function getWorldBoundCollisionInPlace(pos, vel, length, width, config) {
     pos.y = R;
     vel.y = Math.abs(vel.y) * config.WALL_BOUNCE;
     collided = true;
-  } else if (pos.y + R > config.WORLD.height) {
-    pos.y = config.WORLD.height - R;
+  } else if (pos.y + R > worldSize) {
+    pos.y = worldSize - R;
     vel.y = -Math.abs(vel.y) * config.WALL_BOUNCE;
     collided = true;
   }

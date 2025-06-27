@@ -2,6 +2,7 @@
 import { loadSVGWorld } from './svgWorldLoader.js';
 import { clamp } from '../core/utils.js';
 import { getTiles, getTileSize } from './tiles.js';
+import { worldSize } from '../main.js';
 
 export let worldCanvas = null;
 export let collisionCanvas = null;
@@ -11,8 +12,8 @@ export let obstaclePolys = [];
 export let tiles = null;
 export let tileSize = 256;
 
-export async function initWorldFromSVG(svgUrl, collisionMapSize = 1000, worldSize = 4000) {
-  const result = await loadSVGWorld(svgUrl, collisionMapSize, worldSize);
+export async function initWorldFromSVG(svgUrl, collisionMapSize, worldSizeParam) {
+  const result = await loadSVGWorld(svgUrl, collisionMapSize, worldSizeParam);
   worldCanvas = result.worldCanvas;
   collisionCanvas = result.collisionCanvas;
   getSurfaceTypeAt = result.getSurfaceTypeAt;
@@ -62,3 +63,5 @@ export function getStartPos() {
 export function getObstaclePolys() {
   return obstaclePolys;
 }
+
+export { worldSize };
