@@ -1,6 +1,5 @@
 // world.js – logika świata, kolizje, wektory
 import { loadSVGWorld } from './svgWorldLoader.js';
-import { getTiles, getTileSize } from './tiles.js';
 
 export let worldCanvas = null;
 export let collisionCanvas = null;
