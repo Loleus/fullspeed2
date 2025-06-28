@@ -15,10 +15,13 @@ function snapToZero(car, F, input) {
 }
 
 export function updateCarPhysics(car, dt, surf, input, config, worldSize) {
+  // Prekalkulowane wartości dla wydajności
   const grip = config.GRIP * surf.gripMul;
   const accel = config.ACCEL * surf.accelMul;
   const reverse = config.REVERSE_ACCEL * surf.reverseMul;
   const brake = config.BRAKE * surf.brakeMul;
+  const dragDt = config.DRAG * dt; // prekalkulowane
+  const gripDt = grip * dt; // prekalkulowane
 
   let smoothedSteering = car.steering;
   const d = surf.gripMul * config.STEERING_SPEED;
@@ -61,21 +64,28 @@ export function updateCarPhysics(car, dt, surf, input, config, worldSize) {
     }
   }
 
-  const engineX = F.x * car.throttle * config.ENGINE_MULTIPLIER * dt;
-  const engineY = F.y * car.throttle * config.ENGINE_MULTIPLIER * dt;
-  const dragX = -car.vel.x * config.DRAG * dt;
-  const dragY = -car.vel.y * config.DRAG * dt;
+  // Zoptymalizowane obliczenia sił - grupowanie mnożeń
+  const throttleEngineDt = car.throttle * config.ENGINE_MULTIPLIER * dt;
+  const engineX = F.x * throttleEngineDt;
+  const engineY = F.y * throttleEngineDt;
+  
+  const dragX = -car.vel.x * dragDt;
+  const dragY = -car.vel.y * dragDt;
+  
   const lat = dot(car.vel, R);
-  const slideX = -lat * R.x * grip * dt;
-  const slideY = -lat * R.y * grip * dt;
+  const slideX = -lat * R.x * gripDt;
+  const slideY = -lat * R.y * gripDt;
   
   // Zapisz siłę poślizgu dla kamery FVP
   car.slideForce = Math.hypot(slideX, slideY);
 
-  car.vel.x += (engineX + dragX + slideX) / config.MASS;
-  car.vel.y += (engineY + dragY + slideY) / config.MASS;
-  car.vel.x *= 1 - config.FRICTION;
-  car.vel.y *= 1 - config.FRICTION;
+  // Zoptymalizowane: mnożenie zamiast dzielenia
+  car.vel.x += (engineX + dragX + slideX) * config.INV_MASS;
+  car.vel.y += (engineY + dragY + slideY) * config.INV_MASS;
+  
+  // Zoptymalizowane: prekalkulowany mnożnik tarcia
+  car.vel.x *= config.FRICTION_MULT;
+  car.vel.y *= config.FRICTION_MULT;
 
   // SNAP TO ZERO (przód i tył, cała prędkość)
   snapToZero(car, F, input);

@@ -2,9 +2,16 @@
 import { clamp } from '../core/utils.js';
 
 export function updateCamera(car, camera, canvas, worldSize) {
-  const targetX = clamp(car.pos.x, canvas.width / 2, worldSize - canvas.width / 2);
-  const targetY = clamp(car.pos.y, canvas.height / 2, worldSize - canvas.height / 2);
+  // Prekalkulowane wartości dla wydajności
+  const canvasWidthHalf = canvas.width * 0.5; // zamiast canvas.width / 2
+  const canvasHeightHalf = canvas.height * 0.5; // zamiast canvas.height / 2
   
-  camera.x = targetX;
-  camera.y = targetY;
+  // Zoptymalizowane: prekalkulowane granice dla clamp
+  const minX = canvasWidthHalf;
+  const maxX = worldSize - canvasWidthHalf;
+  const minY = canvasHeightHalf;
+  const maxY = worldSize - canvasHeightHalf;
+  
+  camera.x = clamp(car.pos.x, minX, maxX);
+  camera.y = clamp(car.pos.y, minY, maxY);
 } 
