@@ -9,6 +9,12 @@ export async function loadSVGWorld(svgUrl, collisionMapSize, worldSize) {
     // Stałe rozmiary (potęgi dwójki)
     const svgSize = 128; // Rozmiar SVG (viewBox 0 0 128 128)
     
+    // Prekalkulowane wartości dla wydajności
+    const svgSizeInv = 1 / svgSize; // zamiast dzielenia przez svgSize
+    const worldSizeScale = worldSize * svgSizeInv; // prekalkulowane skalowanie
+    const collisionMapScale = collisionMapSize / worldSize; // prekalkulowane skalowanie do collisionMap
+    const collisionMapScaleInv = 1 / collisionMapScale; // odwrotność dla getSurfaceTypeAt
+    
     // 1. Pobierz SVG jako tekst
     console.log('Ładowanie SVG z:', svgUrl);
     const response = await fetch(svgUrl);
@@ -21,7 +27,7 @@ export async function loadSVGWorld(svgUrl, collisionMapSize, worldSize) {
     // 2. Stwórz element SVG w DOM (niewidoczny)
     const parser = new DOMParser();
     const doc = parser.parseFromString(svgText, 'image/svg+xml');
-    
+
     // Sprawdź błędy parsowania
     const parserError = doc.querySelector('parsererror');
     if (parserError) {
@@ -134,9 +140,11 @@ export async function loadSVGWorld(svgUrl, collisionMapSize, worldSize) {
       // Oznacz piksele drogi jako 'asphalt'
       const imgData = collisionCtx.getImageData(0, 0, collisionMapSize, collisionMapSize);
       for (let i = 0; i < imgData.data.length; i += 4) {
+        // Zoptymalizowane: mnożenie zamiast dzielenia przez 4
+        const pixelIndex = i * 0.25; // zamiast i / 4
         // Jeśli piksel nie jest tłem (#010101), to droga
         if (!(imgData.data[i] === 1 && imgData.data[i+1] === 1 && imgData.data[i+2] === 1)) {
-          collisionTypeMap[i / 4] = 'asphalt';
+          collisionTypeMap[pixelIndex] = 'asphalt';
         }
       }
     }
@@ -157,8 +165,10 @@ export async function loadSVGWorld(svgUrl, collisionMapSize, worldSize) {
       // Oznacz piksele przeszkody jako 'obstacle'
       const imgData = collisionCtx.getImageData(0, 0, collisionMapSize, collisionMapSize);
       for (let i = 0; i < imgData.data.length; i += 4) {
+        // Zoptymalizowane: mnożenie zamiast dzielenia przez 4
+        const pixelIndex = i * 0.25; // zamiast i / 4
         if (imgData.data[i] === 255 && imgData.data[i+1] === 255 && imgData.data[i+2] === 255) {
-          collisionTypeMap[i / 4] = 'obstacle';
+          collisionTypeMap[pixelIndex] = 'obstacle';
         }
       }
     }
@@ -172,20 +182,23 @@ export async function loadSVGWorld(svgUrl, collisionMapSize, worldSize) {
         const cx = parseFloat(startElem.getAttribute('cx'));
         const cy = parseFloat(startElem.getAttribute('cy'));
         if (!isNaN(cx) && !isNaN(cy)) {
-          startPos = { x: cx / svgSize * worldSize, y: cy / svgSize * worldSize };
+          // Zoptymalizowane: prekalkulowane skalowanie
+          startPos = { x: cx * worldSizeScale, y: cy * worldSizeScale };
         }
       } else if (startElem.tagName === 'rect') {
         const x = parseFloat(startElem.getAttribute('x'));
         const y = parseFloat(startElem.getAttribute('y'));
         if (!isNaN(x) && !isNaN(y)) {
-          startPos = { x: x / svgSize * worldSize, y: y / svgSize * worldSize };
+          // Zoptymalizowane: prekalkulowane skalowanie
+          startPos = { x: x * worldSizeScale, y: y * worldSizeScale };
         }
       } else if (startElem.hasAttribute('transform')) {
         // Próba wyciągnięcia translate z transform
         const tr = startElem.getAttribute('transform');
         const match = /translate\(([-\d.]+)[ ,]+([\-\d.]+)\)/.exec(tr);
         if (match) {
-          startPos = { x: parseFloat(match[1]) / svgSize * worldSize, y: parseFloat(match[2]) / svgSize * worldSize };
+          // Zoptymalizowane: prekalkulowane skalowanie
+          startPos = { x: parseFloat(match[1]) * worldSizeScale, y: parseFloat(match[2]) * worldSizeScale };
         }
       }
     }
@@ -198,7 +211,8 @@ export async function loadSVGWorld(svgUrl, collisionMapSize, worldSize) {
       const path = new Path2D(d);
       const len = pathElem.getTotalLength ? pathElem.getTotalLength() : 0;
       const points = [];
-      const steps = Math.max(8, Math.floor(len / 4));
+      // Zoptymalizowane: prekalkulowane kroki
+      const steps = Math.max(8, Math.floor(len * 0.25)); // zamiast len / 4
       for (let i = 0; i <= steps; ++i) {
         const l = len * i / steps;
         let pt;
@@ -208,7 +222,10 @@ export async function loadSVGWorld(svgUrl, collisionMapSize, worldSize) {
           // fallback: niech będzie pusta tablica
           pt = null;
         }
-        if (pt) points.push({ x: pt.x / svgSize * worldSize, y: pt.y / svgSize * worldSize });
+        if (pt) {
+          // Zoptymalizowane: prekalkulowane skalowanie
+          points.push({ x: pt.x * worldSizeScale, y: pt.y * worldSizeScale });
+        }
       }
       return points.length > 2 ? points : null;
     }
@@ -224,9 +241,9 @@ export async function loadSVGWorld(svgUrl, collisionMapSize, worldSize) {
       worldCanvas,
       getSurfaceTypeAt: (x, y) => {
         // x, y w skali świata (0..worldSize)
-        // Przeskaluj do collisionMapSize
-        const ix = Math.floor(x * collisionMapSize / worldSize);
-        const iy = Math.floor(y * collisionMapSize / worldSize);
+        // Zoptymalizowane: prekalkulowane skalowanie
+        const ix = Math.floor(x * collisionMapScale);
+        const iy = Math.floor(y * collisionMapScale);
         if (ix < 0 || iy < 0 || ix >= collisionMapSize || iy >= collisionMapSize) return 'grass';
         return collisionTypeMap[ix + iy * collisionMapSize];
       },

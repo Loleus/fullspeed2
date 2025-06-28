@@ -1,5 +1,10 @@
 // utils.js – funkcje pomocnicze matematyczne i wektorowe
 
+// Można dodać dla często używanych kątów
+const COS_TABLE = new Float32Array(360);
+const SIN_TABLE = new Float32Array(360);
+// Wypełnić tabelę przy inicjalizacji
+
 export function fwd(a) { 
   return { x: Math.cos(a), y: Math.sin(a) }; 
 }
