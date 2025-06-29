@@ -1,50 +1,44 @@
-// carRenderer.js – logika renderowania auta
+// carRenderer.js – renderowanie auta
+// Wydzielone z car.js dla lepszej organizacji kodu
 
 // UWAGA: Tryb FVP obsługiwany jest w renderFrame przez odpowiednie przekształcenie kontekstu.
 // drawCar zawsze rysuje auto względem przekazanej pozycji i kąta.
 
+export function createCarImage(src) {
+  return new Promise((resolve) => {
+    const img = new window.Image();
+    img.onload = () => {
+      resolve(img);
+    };
+    img.onerror = (e) => {
+      console.error('Błąd ładowania obrazu auta:', e);
+      resolve(null);
+    };
+    img.src = src;
+  });
+}
+
 export function drawCar(ctx, car, camera, carImg, carImgLoaded) {
   ctx.save();
   
-  // Prekalkulowane wartości dla wydajności
-  const carLengthHalf = car.length * 0.5; // zamiast car.length / 2
-  const carWidthHalf = car.width * 0.5;   // zamiast car.width / 2
+  // Przesuń do pozycji auta względem kamery (auto powinno być na środku ekranu)
+  const canvasWidth = ctx.canvas.width;
+  const canvasHeight = ctx.canvas.height;
+  ctx.translate(car.pos.x - (camera ? camera.x : 0) + canvasWidth * 0.5, car.pos.y - (camera ? camera.y : 0) + canvasHeight * 0.5);
   
-  if (camera === null) {
-    // Tryb FVP: auto na środku ekranu
-    ctx.translate(0, 0);
-    ctx.rotate(car.angle);
-  } else {
-    // Zoptymalizowane: mnożenie zamiast dzielenia przez 2
-    const canvasWidth = ctx.canvas.width;
-    const canvasHeight = ctx.canvas.height;
-    ctx.translate(
-      car.pos.x - camera.x + canvasWidth * 0.5, 
-      car.pos.y - camera.y + canvasHeight * 0.5
-    );
-    ctx.rotate(car.angle);
-  }
+  // Obróć o kąt auta
+  ctx.rotate(car.angle);
   
-  if (carImgLoaded) {
-    ctx.drawImage(carImg, -carLengthHalf, -carWidthHalf, car.length, car.width);
+  if (carImg && carImgLoaded) {
+    // Narysuj auto skalowane do rzeczywistych rozmiarów (180x80)
+    const halfWidth = car.length / 2; // 90 (długość jako szerokość)
+    const halfHeight = car.width / 2; // 40 (szerokość jako wysokość)
+    ctx.drawImage(carImg, -halfWidth, -halfHeight, car.length, car.width);
   } else {
     // Fallback - czerwony prostokąt gdy obrazek nie jest załadowany
     ctx.fillStyle = 'red';
-    ctx.fillRect(-carLengthHalf, -carWidthHalf, car.length, car.width);
+    ctx.fillRect(-car.length/2, -car.width/2, car.length, car.width);
   }
   
   ctx.restore();
-}
-
-export function createCarImage(src) {
-  console.log('Ładowanie obrazu auta z:', src);
-  const carImg = new Image();
-  carImg.onload = () => {
-    console.log('Obraz auta załadowany pomyślnie');
-  };
-  carImg.onerror = (error) => {
-    console.error('Błąd ładowania obrazu auta:', error);
-  };
-  carImg.src = src;
-  return carImg;
 } 

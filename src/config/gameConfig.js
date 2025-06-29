@@ -16,8 +16,8 @@ export const CONFIG = {
   MAX_STEERING: Math.PI / 4, // maksymalny kąt skrętu
   STEERING_SPEED: 0.03, // szybkość skręcania
   STEERING_RETURN: 0.085, // powrót kierownicy
-  STOP_EPS: 0.05, // próg zatrzymania
+  STOP_EPS: 0.06, // próg zatrzymania
   WALL_BOUNCE: 0.35, // odbicie od ściany
-  THROTTLE_RAMP: 0.01, // narastanie gazu
+  THROTTLE_RAMP: 0.02, // narastanie gazu
   WORLD: { width: 6144, height: 6144} // rozmiar świata
 };

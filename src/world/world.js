@@ -3,6 +3,7 @@ import { loadSVGWorld } from './svgWorldLoader.js';
 
 export let worldCanvas = null;
 export let collisionCanvas = null;
+export let collisionTypeMap = null;
 export let getSurfaceTypeAt = null;
 export let startPos = null;
 export let obstaclePolys = [];
@@ -13,6 +14,7 @@ export async function initWorldFromSVG(svgUrl, collisionMapSize, worldSizeParam)
   const result = await loadSVGWorld(svgUrl, collisionMapSize, worldSizeParam);
   worldCanvas = result.worldCanvas;
   collisionCanvas = result.collisionCanvas;
+  collisionTypeMap = result.collisionTypeMap;
   getSurfaceTypeAt = result.getSurfaceTypeAt;
   startPos = result.startPos;
   obstaclePolys = result.obstaclePolys || [];
@@ -45,4 +47,11 @@ export function getSurfaceParams(type) {
     default:
       return { gripMul: 1, accelMul: 0.7, reverseMul: 0.7, brakeMul: 1 };
   }
+}
+
+// Funkcja do obsługi kolizji w trybie FVP z przesunięciem świata
+export function getSurfaceTypeAtFvp(x, y) {
+  // W trybie FVP świat nie ma dodatkowego przesunięcia
+  // Używamy normalnej funkcji kolizji
+  return getSurfaceTypeAt(x, y);
 }

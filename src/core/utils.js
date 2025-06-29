@@ -38,4 +38,29 @@ export function lerpAngle(a, b, t) {
   while (diff > Math.PI) diff -= 2 * Math.PI;
   while (diff < -Math.PI) diff += 2 * Math.PI;
   return a + diff * t;
+}
+
+// Znajdź najbliższy punkt na wielokącie do punktu p
+export function findClosestPointOnPolygon(p, polygon) {
+  let minDistSq = Infinity;
+  let closest = null;
+  for (let i = 0; i < polygon.length; i++) {
+    const a = polygon[i];
+    const b = polygon[(i + 1) % polygon.length];
+    // Najbliższy punkt na odcinku ab do p
+    const ab = { x: b.x - a.x, y: b.y - a.y };
+    const ap = { x: p.x - a.x, y: p.y - a.y };
+    const abLenSq = ab.x * ab.x + ab.y * ab.y;
+    let t = abLenSq > 0 ? (ap.x * ab.x + ap.y * ab.y) / abLenSq : 0;
+    t = Math.max(0, Math.min(1, t));
+    const proj = { x: a.x + ab.x * t, y: a.y + ab.y * t };
+    const dx = p.x - proj.x;
+    const dy = p.y - proj.y;
+    const distSq = dx * dx + dy * dy;
+    if (distSq < minDistSq) {
+      minDistSq = distSq;
+      closest = proj;
+    }
+  }
+  return closest;
 } 

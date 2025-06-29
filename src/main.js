@@ -4,14 +4,15 @@
 
 import { CONFIG } from './config/gameConfig.js';
 import { updateCar, createCarWithPosition, setCarGear } from './entities/car/car.js';
-import { getInputFromKeys } from './input/gameInput.js';
+import { getInputFromKeys, getCameraMode } from './input/gameInput.js';
 import { drawHUD } from './render/hud.js';
 import { renderFrame } from './render/render.js';
-import { initWorldFromSVG, getSurfaceTypeAt, getSurfaceParams, startPos, tiles } from './world/world.js';
+import { initWorldFromSVG, getSurfaceTypeAt, getSurfaceTypeAtFvp, getSurfaceParams, startPos, tiles } from './world/world.js';
 import { updateCamera } from './render/cameraClassic.js';
 import { handleObstacleCollisionWithPolygon } from './entities/obstacles/obstacles.js';
 import { GameLoop } from './core/gameLoop.js';
 import { createCarImage } from './entities/car/carRenderer.js';
+import { fvpCamera } from './render/cameraFvp.js';
 
 // ───────── ŚWIAT I CANVAS ─────────
 const canvas = document.getElementById('gameCanvas');
@@ -30,14 +31,23 @@ const gameLoop = new GameLoop();
 // ───────── INICJALIZACJA ─────────
 async function startGame() {
   try {
-    console.log('Rozpoczynam inicjalizację gry...');
-    await initWorldFromSVG('./assets/scenes/SCENE_2.svg', 1024, worldSize);
+    await initWorldFromSVG('./assets/scenes/SCENE_1.svg', 1024, worldSize);
     const pos = (startPos && startPos.x !== undefined && startPos.y !== undefined) ? startPos : { x: 50, y: 50 };
+    
     car = createCarWithPosition(pos);
     car.surfaceType = getSurfaceTypeAt(car.pos.x, car.pos.y);
     car.surf = getSurfaceParams(car.surfaceType);
-    carImg = createCarImage('./assets/images/car_X.png');
-    console.log('Gry zainicjalizowana pomyślnie');
+    carImg = await createCarImage('./assets/images/car_X.png');
+    
+    // Inicjalizuj kamerę na pozycji auta
+    camera.x = car.pos.x;
+    camera.y = car.pos.y;
+    
+    // Inicjalizacja kamery FVP
+    fvpCamera.x = car.pos.x;
+    fvpCamera.y = car.pos.y;
+    fvpCamera.angle = car.angle + Math.PI * 0.5; // Inicjalizuj z kątem samochodu + 90°
+    
     resize();
     requestAnimationFrame(loop);
   } catch (error) {
@@ -54,7 +64,7 @@ async function startGame() {
 function resize() {
   canvas.width = innerWidth;
   canvas.height = innerHeight;
-  if (car) updateCamera(car, camera, canvas, { width: worldSize, height: worldSize });
+  if (car) updateCamera(car, camera, canvas, worldSize);
 }
 window.addEventListener('resize', resize);
 
@@ -68,7 +78,8 @@ function loop(now) {
   const input = getInputFromKeys();
   
   // Aktualizuj typ powierzchni
-  const newSurfaceType = getSurfaceTypeAt(car.pos.x, car.pos.y);
+  const surfaceTypeFunction = getCameraMode() === 'fvp' ? getSurfaceTypeAtFvp : getSurfaceTypeAt;
+  const newSurfaceType = surfaceTypeFunction(car.pos.x, car.pos.y);
   if (car.surfaceType !== newSurfaceType) {
     car.surfaceType = newSurfaceType;
     car.surf = getSurfaceParams(newSurfaceType);
@@ -90,7 +101,7 @@ function loop(now) {
   updateCar(car, dt, car.surf, input, CONFIG, worldSize);
   // Aktualizuj prędkość auta do FVP
   car.speed = Math.hypot(car.vel.x, car.vel.y);
-  updateCamera(car, camera, canvas, { width: worldSize, height: worldSize });
+  updateCamera(car, camera, canvas, worldSize);
   
   // Renderowanie
   renderFrame(ctx, camera, car, carImg, gameLoop.getFPS(), input, CONFIG);
