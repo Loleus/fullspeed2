@@ -11,6 +11,7 @@ export function initTiles(worldCanvas, newTileSize, worldSize) {
   numTilesX = Math.ceil(worldSize * tileSizeInv); // zoptymalizowane: mnożenie zamiast dzielenia
   numTilesY = Math.ceil(worldSize * tileSizeInv); // zoptymalizowane: mnożenie zamiast dzielenia
   tiles = Array.from({ length: numTilesY }, () => Array(numTilesX));
+  
   for (let ty = 0; ty < numTilesY; ++ty) {
     for (let tx = 0; tx < numTilesX; ++tx) {
       const tileCanvas = document.createElement('canvas');

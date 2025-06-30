@@ -1,11 +1,9 @@
-// render.js – rysowanie auta, toru, świata
-import { drawCar } from '../entities/car/carRenderer.js';
-import { getTiles, getTileSize, getNumTilesX, getNumTilesY, getTileShift } from '../world/tiles.js';
-import { getCameraMode } from '../input/gameInput.js';
-import { updateFvpCameraAndScreen, fvpCamera } from './cameraFvp.js';
+// render.js – główny moduł renderowania
 
-// Prekalkulowane stałe dla wydajności
-const HALF_PI = Math.PI * 0.5; // zamiast Math.PI / 2
+import { getCameraMode } from '../input/gameInput.js';
+import { getTiles, getTileSize, getNumTilesX, getNumTilesY, getTileShift } from '../world/tiles.js';
+import { drawCar } from '../entities/car/carRenderer.js';
+import { fvpCamera, fvpScreen, updateFvpCameraAndScreen } from './cameraFvp.js';
 
 // Funkcja drawWorld powinna korzystać tylko z worldCanvas (SVG), nie rysować przeszkód ręcznie
 export function drawWorld(ctx, worldC, camera) {
@@ -31,11 +29,18 @@ export function drawWorldTiled(ctx, camera, canvasWidth, canvasHeight, car = nul
   const tiles = getTiles();
 
   if (getCameraMode() === 'fvp' && car && fvpScreen) {
-    ctx.translate(fvpScreen.screenX, fvpScreen.screenY);
-    ctx.rotate(-fvpCamera.angle);
-    ctx.translate(-car.pos.x, -car.pos.y);
+    // W trybie FVP: prosty widok z obrotem względem pozycji samochodu
+    
+    ctx.translate(canvasWidth * 0.5, canvasHeight * 0.9);
+    
+    // Przesuń świat w dół, aby punkt startu był pod samochodem
+    // ctx.translate(0, canvasHeight * 0.3); // Przesuń świat w dół o 30% wysokości
+    
+    ctx.rotate(-fvpCamera.angle); // Obróć świat przeciwnie do kamery
+    ctx.translate(-car.pos.x, -car.pos.y); // Przesuń świat względem pozycji samochodu
+    
     const diag = Math.sqrt(canvasWidth * canvasWidth + canvasHeight * canvasHeight);
-    const radius = diag * 0.5; // zamiast diag / 2
+    const radius = diag * 0.64; // zamiast diag / 2
     const minX = Math.max(0, ((car.pos.x - radius) >> shift));
     const maxX = Math.min(numTilesX, ((car.pos.x + radius) >> shift) + 1);
     const minY = Math.max(0, ((car.pos.y - radius) >> shift));
@@ -53,7 +58,7 @@ export function drawWorldTiled(ctx, camera, canvasWidth, canvasHeight, car = nul
     }
   } else {
     // --- Zwykła kamera: prostokątny zakres kafelków z marginesem ---
-    const margin = 2;
+    const margin = 1;
     // Zoptymalizowane: mnożenie zamiast dzielenia przez 2
     const canvasWidthHalf = canvasWidth * 0.5;
     const canvasHeightHalf = canvasHeight * 0.5;
@@ -61,6 +66,7 @@ export function drawWorldTiled(ctx, camera, canvasWidth, canvasHeight, car = nul
     const right = ((camera.x + canvasWidthHalf) >> shift) + margin;
     const top = ((camera.y - canvasHeightHalf) >> shift) - margin;
     const bottom = ((camera.y + canvasHeightHalf) >> shift) + margin;
+    
     ctx.translate(-camera.x + canvasWidthHalf, -camera.y + canvasHeightHalf);
     
     for (let ty = top; ty < bottom; ++ty) {
@@ -89,17 +95,12 @@ export function renderFrame(ctx, camera, car, carImg, fps, keys, config) {
   const canvasWidthHalf = canvasWidth * 0.5;
   const canvasHeightHalf = canvasHeight * 0.5;
   
-  let fvpScreen = null;
+  let currentFvpScreen = null;
   if (getCameraMode() === 'fvp') {
-    // Inicjalizacja kamery FVP przy pierwszym uruchomieniu
-    if (fvpCamera.x === 0 && fvpCamera.y === 0) {
-      fvpCamera.x = car.pos.x;
-      fvpCamera.y = car.pos.y;
-      fvpCamera.angle = car.angle + HALF_PI; // zamiast Math.PI / 2
-    }
-    fvpScreen = updateFvpCameraAndScreen(car, ctx.canvas);
+    updateFvpCameraAndScreen(car, ctx.canvas);
+    currentFvpScreen = fvpScreen;
     // Rysuj świat FVP
-    drawWorldTiled(ctx, camera, canvasWidth, canvasHeight, car, fvpScreen);
+    drawWorldTiled(ctx, camera, canvasWidth, canvasHeight, car, currentFvpScreen);
   } else {
     // Rysuj świat classic
     drawWorldTiled(ctx, camera, canvasWidth, canvasHeight);
@@ -107,11 +108,26 @@ export function renderFrame(ctx, camera, car, carImg, fps, keys, config) {
   
   // Rysuj auto
   const imgReady = carImg && carImg.complete && carImg.naturalWidth > 0;
+  
   if (getCameraMode() === 'fvp') {
     ctx.save();
-    ctx.translate(fvpScreen ? fvpScreen.screenX : canvasWidthHalf, fvpScreen ? fvpScreen.screenY : canvasHeightHalf);
-    ctx.rotate(-(fvpCamera.angle - (car.angle + HALF_PI))); // zamiast Math.PI/2
-    drawCar(ctx, { ...car, pos: { x: 0, y: 0 }, angle: -HALF_PI }, null, carImg, imgReady);
+    // Samochód w FVP używa pozycji z fvpScreen (z poruszaniem w osi Y)
+    ctx.translate(currentFvpScreen ? currentFvpScreen.screenX : canvasWidthHalf, currentFvpScreen ? currentFvpScreen.screenY : canvasHeight * 0.8);
+    
+    // Obróć samochód względem różnicy między kątem samochodu a kątem kamery
+    // Samochód ma być zawsze skierowany "do góry" na ekranie
+    const carAngleDiff = car.angle - fvpCamera.angle;
+    ctx.rotate(carAngleDiff);
+    
+    // Narysuj samochód wycentrowany
+    if (imgReady) {
+      const halfWidth = car.length / 2; // 90 (długość jako szerokość)
+      const halfHeight = car.width / 2; // 40 (szerokość jako wysokość)
+      ctx.drawImage(carImg, -halfWidth, -halfHeight, car.length, car.width);
+    } else {
+      ctx.fillStyle = 'red';
+      ctx.fillRect(-car.length/2, -car.width/2, car.length, car.width);
+    }
     ctx.restore();
   } else {
     drawCar(ctx, car, camera, carImg, imgReady);
