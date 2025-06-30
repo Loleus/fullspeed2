@@ -24,15 +24,10 @@ export function updateCarPhysics(car, dt, surf, input, config, worldSize) {
   const R = rgt(car.angle);
   const fSpd = dot(car.vel, F);
 
-  // Sprawdź czy hamowanie jest aktywne
-  const isBraking = (
-    (car.gear === 'D' && input.down && !input.up && fSpd > config.STOP_EPS) ||
-    (car.gear === 'R' && input.up && !input.down && fSpd < -config.STOP_EPS)
-  );
+  // Uproszczony warunek hamowania:
+  const isBraking = (car.gear === 'D' && input.down) || (car.gear === 'R' && input.up);
 
-  // Klasyczny, stabilny model hamowania
   let brakeForce = 0;
-
 
   // Oblicz odwrotność masy dla wydajności
   const effectiveInvMass = config.INV_MASS;
