@@ -40,7 +40,7 @@ export function drawWorldTiled(ctx, camera, canvasWidth, canvasHeight, car = nul
     ctx.translate(-car.pos.x, -car.pos.y); // Przesuń świat względem pozycji samochodu
     
     const diag = Math.sqrt(canvasWidth * canvasWidth + canvasHeight * canvasHeight);
-    const radius = diag * 0.5; // zamiast diag / 2
+    const radius = diag * 0.64; // zamiast diag / 2
     const minX = Math.max(0, ((car.pos.x - radius) >> shift));
     const maxX = Math.min(numTilesX, ((car.pos.x + radius) >> shift) + 1);
     const minY = Math.max(0, ((car.pos.y - radius) >> shift));
