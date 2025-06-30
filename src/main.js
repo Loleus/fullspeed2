@@ -87,9 +87,10 @@ function loop(now) {
 
   // Edge detection przy zmianie biegu
   const speed = Math.hypot(car.vel.x, car.vel.y);
-  if (speed < CONFIG.STOP_EPS) {
-    if (input.up && !lastUpPressed && !input.down) setCarGear(car, 'D');
-    else if (input.down && !lastDownPressed && !input.up) setCarGear(car, 'R');
+  const speedKmh = speed * 4.0; // konwersja jak w HUD
+  if (speedKmh < 10) {
+    if (input.up && !input.down) setCarGear(car, 'D');
+    else if (input.down && !input.up) setCarGear(car, 'R');
     else if (!input.up && !input.down) setCarGear(car, 0);
   }
   lastUpPressed = input.up;

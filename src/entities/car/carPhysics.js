@@ -3,23 +3,11 @@
 import { fwd, rgt, dot } from '../../core/utils.js';
 import { getWorldBoundCollisionInPlace } from '../../world/worldPhysics.js';
 
-function snapToZero(car, F, input) {
-  const fSpdNow = dot(car.vel, F);
-  if (
-    (car.gear === 'D' && input.down && !input.up && Math.abs(fSpdNow) < 5 / 6.0) ||
-    (car.gear === 'R' && input.up && !input.down && Math.abs(fSpdNow) < 5 / 6.0)
-  ) {
-    car.vel.x = 0;
-    car.vel.y = 0;
-  }
-}
-
 export function updateCarPhysics(car, dt, surf, input, config, worldSize) {
   // Prekalkulowane wartości dla wydajności
   const grip = config.GRIP * surf.gripMul;
   const accel = config.ACCEL * surf.accelMul;
   const reverse = config.REVERSE_ACCEL * surf.reverseMul;
-  const brake = config.BRAKE * surf.brakeMul;
   const dragDt = config.DRAG * dt; // prekalkulowane
   const gripDt = grip * dt; // prekalkulowane
 
@@ -36,20 +24,23 @@ export function updateCarPhysics(car, dt, surf, input, config, worldSize) {
   const R = rgt(car.angle);
   const fSpd = dot(car.vel, F);
 
-  // Hamowanie: działa bezpośrednio na prędkość, throttle tylko do gazu
+  // Sprawdź czy hamowanie jest aktywne
   const isBraking = (
     (car.gear === 'D' && input.down && !input.up && fSpd > config.STOP_EPS) ||
     (car.gear === 'R' && input.up && !input.down && fSpd < -config.STOP_EPS)
   );
 
+  // Klasyczny, stabilny model hamowania
+  let brakeForce = 0;
+
+
+  // Oblicz odwrotność masy dla wydajności
+  const effectiveInvMass = config.INV_MASS;
+
+  // Logika gazu (tylko gdy nie hamujemy)
   if (isBraking) {
-    car.throttle = 0;
-    car.vel.x -= F.x * brake * Math.sign(fSpd);
-    car.vel.y -= F.y * brake * Math.sign(fSpd);
-    if (Math.abs(fSpd) < 1) {
-      car.vel.x = 0;
-      car.vel.y = 0;
-    }
+    brakeForce = config.BRAKE;
+    car.throttle = 0; // Wyłącz gaz podczas hamowania
   } else {
     let thrust = 0;
     if (car.gear === 'D') {
@@ -72,6 +63,10 @@ export function updateCarPhysics(car, dt, surf, input, config, worldSize) {
   const dragX = -car.vel.x * dragDt;
   const dragY = -car.vel.y * dragDt;
   
+  // Klasyczna siła hamowania - proporcjonalna do prędkości
+  const brakeX = -car.vel.x * brakeForce * dt;
+  const brakeY = -car.vel.y * brakeForce * dt;
+  
   const lat = dot(car.vel, R);
   const slideX = -lat * R.x * gripDt;
   const slideY = -lat * R.y * gripDt;
@@ -79,16 +74,13 @@ export function updateCarPhysics(car, dt, surf, input, config, worldSize) {
   // Zapisz siłę poślizgu dla kamery FVP
   car.slideForce = Math.hypot(slideX, slideY);
 
-  // Zoptymalizowane: mnożenie zamiast dzielenia
-  car.vel.x += (engineX + dragX + slideX) * config.INV_MASS;
-  car.vel.y += (engineY + dragY + slideY) * config.INV_MASS;
+  // Zoptymalizowane: użyj normalnej masy + dodaj siłę hamowania
+  car.vel.x += (engineX + dragX + slideX + brakeX) * effectiveInvMass;
+  car.vel.y += (engineY + dragY + slideY + brakeY) * effectiveInvMass;
   
   // Zoptymalizowane: prekalkulowany mnożnik tarcia
   car.vel.x *= config.FRICTION_MULT;
   car.vel.y *= config.FRICTION_MULT;
-
-  // SNAP TO ZERO (przód i tył, cała prędkość)
-  snapToZero(car, F, input);
 
   if (Math.abs(smoothedSteering) > 0.01) {
     const radius = config.WHEELBASE / Math.tan(smoothedSteering);
@@ -111,6 +103,7 @@ export function updateCarPhysics(car, dt, surf, input, config, worldSize) {
   // Kolizje z granicami świata
   getWorldBoundCollisionInPlace(car.pos, car.vel, car.length, car.width, config, worldSize);
 
+  // Zerowanie prędkości przy bardzo małych wartościach
   if (Math.hypot(car.vel.x, car.vel.y) < config.STOP_EPS) {
     car.vel.x = 0;
     car.vel.y = 0;

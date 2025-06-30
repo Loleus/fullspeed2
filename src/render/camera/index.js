@@ -35,7 +35,7 @@ const fvpCamera = {
     const canvasWidth = canvas.width;
     const canvasHeight = canvas.height;
     const canvasWidthHalf = canvasWidth * 0.5;
-    const canvasHeightHalf = canvasHeight * 0.5;
+    // const canvasHeightHalf = canvasHeight * 0.5;
     
     // Pozycja
     const baseLerpSpeed = 0.02;
