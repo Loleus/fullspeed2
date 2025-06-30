@@ -285,28 +285,20 @@ export async function loadSVGWorld(svgUrl, collisionMapSize, worldSize) {
       const obstacles = obstaclesGroup.querySelectorAll('[id^="1_"], [id^="2_"], [id^="3_"], [id^="4_"], [id^="5_"], [id^="6_"], [id^="7_"], [id^="8_"], [id^="9_"], [id^="10_"]');
       for (const obs of obstacles) {
         const obstacleType = obs.id.split('_')[1] || 'obstacle';
-        
         // Utwórz Path2D z kształtu przeszkody (przeskalowany z SVG viewBox na worldCanvas)
         const svgPath = obs.getAttribute('d');
         const scaledPath = scaleSvgPath(svgPath, worldSizeScale);
         const obsPath = new Path2D(scaledPath);
-        
         await new Promise((resolve) => {
           // Użyj tekstury jako pattern
           const patternCanvas = document.createElement('canvas');
           const patternCtx = patternCanvas.getContext('2d');
-          patternCanvas.width = 256;
-          patternCanvas.height = 256;
-          
+          patternCanvas.width = 512;
+          patternCanvas.height = 512;
           const textureImg = new window.Image();
           textureImg.onload = () => {
-            // Kafelkuj teksturę - podziel 512x512 na 4 kafelki 256x256
-            for (let x = 0; x < 256; x += 128) {
-              for (let y = 0; y < 256; y += 128) {
-                patternCtx.drawImage(textureImg, x, y, 128, 128);
-              }
-            }
-            
+            // Rysuj teksturę obstacles w pełnym rozmiarze 512x512
+            patternCtx.drawImage(textureImg, 0, 0, 512, 512);
             // Zastosuj pattern do przeszkody z clip-path
             worldCtx.save();
             const pattern = worldCtx.createPattern(patternCanvas, 'repeat');
@@ -314,7 +306,6 @@ export async function loadSVGWorld(svgUrl, collisionMapSize, worldSize) {
             worldCtx.clip(obsPath);
             worldCtx.fillRect(0, 0, worldSize, worldSize);
             worldCtx.restore();
-            
             resolve();
           };
           textureImg.onerror = (e) => {
@@ -333,7 +324,7 @@ export async function loadSVGWorld(svgUrl, collisionMapSize, worldSize) {
     }
 
     // Podział worldCanvas na kafelki
-    const tileSize = 256;
+    const tileSize = 512;
     initTiles(worldCanvas, tileSize, worldSize);
 
     // 7. Pozycja startowa z SVG (id='START' w grupie ROAD)
