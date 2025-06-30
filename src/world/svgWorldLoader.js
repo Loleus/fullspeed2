@@ -244,32 +244,36 @@ export async function loadSVGWorld(svgUrl, collisionMapSize, worldSize) {
         const trackPath = new Path2D(scaledPath);
         
         await new Promise((resolve) => {
-          // Użyj tekstury jako pattern
-          const patternCanvas = document.createElement('canvas');
-          const patternCtx = patternCanvas.getContext('2d');
-          patternCanvas.width = 512;
-          patternCanvas.height = 512;
-          
           const textureImg = new window.Image();
           textureImg.onload = () => {
-            // Kafelkuj teksturę - tekstura 512x512 rysowana raz w patternCanvas 512x512
-            patternCtx.drawImage(textureImg, 0, 0, 512, 512);
-            
-            // Zastosuj pattern do ścieżki drogi z clip-path
-            worldCtx.save();
-            const pattern = worldCtx.createPattern(patternCanvas, 'repeat');
-            worldCtx.fillStyle = pattern;
-            worldCtx.clip(trackPath);
-            worldCtx.fillRect(0, 0, worldSize, worldSize);
-            worldCtx.restore();
-            
+            const tileSize = 256;
+            let minX = 0, minY = 0, maxX = worldSize, maxY = worldSize;
+            if (trackPath.getBounds) {
+              const bbox = trackPath.getBounds();
+              minX = bbox.x;
+              minY = bbox.y;
+              maxX = bbox.x + bbox.width;
+              maxY = bbox.y + bbox.height;
+            }
+            for (let x = minX; x < maxX; x += tileSize) {
+              for (let y = minY; y < maxY; y += tileSize) {
+                worldCtx.save();
+                worldCtx.beginPath();
+                worldCtx.rect(x, y, tileSize, tileSize);
+                worldCtx.clip();
+                worldCtx.clip(trackPath);
+                const pattern = worldCtx.createPattern(textureImg, 'repeat');
+                worldCtx.fillStyle = pattern;
+                worldCtx.fillRect(x, y, tileSize, tileSize);
+                worldCtx.restore();
+              }
+            }
             resolve();
           };
           textureImg.onerror = (e) => {
             console.error(`Błąd ładowania tekstury ${surfaceType}:`, e);
-            // Fallback: narysuj bez tekstury
             worldCtx.save();
-            worldCtx.fillStyle = '#64566D'; // Kolor asfaltu
+            worldCtx.fillStyle = '#64566D';
             worldCtx.clip(trackPath);
             worldCtx.fillRect(0, 0, worldSize, worldSize);
             worldCtx.restore();
@@ -290,29 +294,36 @@ export async function loadSVGWorld(svgUrl, collisionMapSize, worldSize) {
         const scaledPath = scaleSvgPath(svgPath, worldSizeScale);
         const obsPath = new Path2D(scaledPath);
         await new Promise((resolve) => {
-          // Użyj tekstury jako pattern
-          const patternCanvas = document.createElement('canvas');
-          const patternCtx = patternCanvas.getContext('2d');
-          patternCanvas.width = 512;
-          patternCanvas.height = 512;
           const textureImg = new window.Image();
           textureImg.onload = () => {
-            // Rysuj teksturę obstacles w pełnym rozmiarze 512x512
-            patternCtx.drawImage(textureImg, 0, 0, 512, 512);
-            // Zastosuj pattern do przeszkody z clip-path
-            worldCtx.save();
-            const pattern = worldCtx.createPattern(patternCanvas, 'repeat');
-            worldCtx.fillStyle = pattern;
-            worldCtx.clip(obsPath);
-            worldCtx.fillRect(0, 0, worldSize, worldSize);
-            worldCtx.restore();
+            const tileSize = 256;
+            let minX = 0, minY = 0, maxX = worldSize, maxY = worldSize;
+            if (obsPath.getBounds) {
+              const bbox = obsPath.getBounds();
+              minX = bbox.x;
+              minY = bbox.y;
+              maxX = bbox.x + bbox.width;
+              maxY = bbox.y + bbox.height;
+            }
+            for (let x = minX; x < maxX; x += tileSize) {
+              for (let y = minY; y < maxY; y += tileSize) {
+                worldCtx.save();
+                worldCtx.beginPath();
+                worldCtx.rect(x, y, tileSize, tileSize);
+                worldCtx.clip();
+                worldCtx.clip(obsPath);
+                const pattern = worldCtx.createPattern(textureImg, 'repeat');
+                worldCtx.fillStyle = pattern;
+                worldCtx.fillRect(x, y, tileSize, tileSize);
+                worldCtx.restore();
+              }
+            }
             resolve();
           };
           textureImg.onerror = (e) => {
             console.error(`Błąd ładowania tekstury przeszkody ${obstacleType}:`, e);
-            // Fallback: narysuj bez tekstury
             worldCtx.save();
-            worldCtx.fillStyle = '#FFFFFF'; // Kolor przeszkody
+            worldCtx.fillStyle = '#FFFFFF';
             worldCtx.clip(obsPath);
             worldCtx.fillRect(0, 0, worldSize, worldSize);
             worldCtx.restore();
@@ -324,7 +335,7 @@ export async function loadSVGWorld(svgUrl, collisionMapSize, worldSize) {
     }
 
     // Podział worldCanvas na kafelki
-    const tileSize = 512;
+    const tileSize = 256;
     initTiles(worldCanvas, tileSize, worldSize);
 
     // 7. Pozycja startowa z SVG (id='START' w grupie ROAD)

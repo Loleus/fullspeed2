@@ -22,7 +22,6 @@ const SPEED_FACTOR_INV = 1 / 50.0;
 const MAX_SPEED_INV = 1 / 50.0;
 const DEAD_ZONE = 0.15;
 const DEAD_ZONE_INV = 1 / (1 - DEAD_ZONE);
-const BASE_LERP_SPEED = 0.02;
 const ANGLE_LERP_SPEED = 0.03;
 const HORIZONTAL_LERP_BASE = 0.05;
 const VERTICAL_LERP_SPEED = 0.06;
@@ -39,13 +38,13 @@ export function updateFvpCameraAndScreen(car, canvas) {
   const canvasWidth = canvas.width;
   const canvasHeight = canvas.height;
   const centerX = canvasWidth * 0.5;
-  const maxAutoOffset = canvasWidth * 0.2;
-  const startY = canvasHeight * 0.8; // Startowa pozycja 20% od dołu
-  const minScreenY = canvasHeight * 0.9; // Min 10% od dołu przy cofaniu
-  const maxScreenY = canvasHeight * 0.55; // Max 45% od dołu przy maksymalnej prędkości
+  const maxAutoOffset = canvasWidth * 0.15;
+  const startY = canvasHeight * 0.85; // Startowa pozycja 20% od dołu
+  const minScreenY = canvasHeight * 0.90; // Min 10% od dołu przy cofaniu
+  const maxScreenY = canvasHeight * 0.70; // Max 45% od dołu przy maksymalnej prędkości
   
   // Kamera FVP podąża za autem z opóźnieniem zależnym od siły odśrodkowej
-  const slideLerpSpeed = Math.max(0.005, BASE_LERP_SPEED - car.slideForce * 15);
+  const slideLerpSpeed = Math.max(0.005, HORIZONTAL_LERP_BASE - car.slideForce * 10);
   fvpCamera.x = lerp(fvpCamera.x, car.pos.x, slideLerpSpeed);
   fvpCamera.y = lerp(fvpCamera.y, car.pos.y, slideLerpSpeed);
   
