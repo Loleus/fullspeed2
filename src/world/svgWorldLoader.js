@@ -133,7 +133,7 @@ export async function loadSVGWorld(svgUrl, collisionMapSize, worldSize) {
         console.error('Błąd ładowania tekstury tła:', e);
         resolve();
       };
-      bgImg.src = `assets/images/${bgTexture}.png`;
+      bgImg.src = `assets/images/${bgTexture}.jpg`;
     });
 
     // Znajdź grupy ROAD i OBSTACLES
