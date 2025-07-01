@@ -122,9 +122,9 @@ export async function loadSVGWorld(svgUrl, collisionMapSize, worldSize) {
     await new Promise((resolve) => {
       const bgImg = new window.Image();
       bgImg.onload = () => {
-        for (let x = 0; x < worldSize; x += 512) {
-          for (let y = 0; y < worldSize; y += 512) {
-            worldCtx.drawImage(bgImg, x, y, 512, 512);
+        for (let x = 0; x < worldSize; x += 256) {
+          for (let y = 0; y < worldSize; y += 256) {
+            worldCtx.drawImage(bgImg, x, y, 256, 256);
           }
         }
         resolve();
@@ -133,7 +133,7 @@ export async function loadSVGWorld(svgUrl, collisionMapSize, worldSize) {
         console.error('Błąd ładowania tekstury tła:', e);
         resolve();
       };
-      bgImg.src = `assets/images/${bgTexture}.png`;
+      bgImg.src = `assets/images/${bgTexture}.jpg`;
     });
 
     // Znajdź grupy ROAD i OBSTACLES

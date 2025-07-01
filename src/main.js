@@ -31,7 +31,7 @@ const gameLoop = new GameLoop();
 // ───────── INICJALIZACJA ─────────
 async function startGame() {
   try {
-    await initWorldFromSVG('./assets/scenes/SCENE_1.svg', 1024, worldSize);
+    await initWorldFromSVG('./assets/scenes/SCENE_3.svg', 1024, worldSize);
     const pos = (startPos && startPos.x !== undefined && startPos.y !== undefined) ? startPos : { x: 50, y: 50 };
     
     car = createCarWithPosition(pos);

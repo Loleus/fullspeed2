@@ -22,8 +22,8 @@ const SPEED_FACTOR_INV = 1 / 50.0;
 const MAX_SPEED_INV = 1 / 50.0;
 const DEAD_ZONE = 0.15;
 const DEAD_ZONE_INV = 1 / (1 - DEAD_ZONE);
-const ANGLE_LERP_SPEED = 0.03;
-const HORIZONTAL_LERP_BASE = 0.05;
+const ANGLE_LERP_SPEED = 0.06;
+const HORIZONTAL_LERP_BASE = 0.06;
 const VERTICAL_LERP_SPEED = 0.06;
 
 export function updateCamera(car, camera, canvas, worldSize) {
