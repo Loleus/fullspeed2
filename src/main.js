@@ -141,7 +141,8 @@ function menuLoop() {
   }
 }
 
-canvas.addEventListener('click', function menuClickHandler(e) {
+// Handler kliknięcia do menu
+function menuClickHandler(e) {
   if (showMenuScreen && buttonRect) {
     const rect = canvas.getBoundingClientRect();
     const mx = e.clientX - rect.left;
@@ -160,7 +161,9 @@ canvas.addEventListener('click', function menuClickHandler(e) {
   } else if (!showMenuScreen && !showLoadingScreen) {
     console.log('⚠️ Kliknięcie ignorowane - gra już działa');
   }
-});
+}
+
+canvas.addEventListener('click', menuClickHandler);
 
 function resize() {
   canvas.width = innerWidth;
@@ -197,6 +200,8 @@ async function startGame() {
     showLoadingScreen = false;
     isMenuRunning = false; // Zatrzymaj pętlę menu
     console.log('✅ Gra załadowana - pętla menu zatrzymana, rozpoczynam pętlę gry');
+    canvas.removeEventListener('click', menuClickHandler);
+    console.log('🧹 Listener na kliknięcie menu został usunięty');
     requestAnimationFrame(loop);
   } catch (error) {
     console.error('Błąd podczas inicjalizacji gry:', error);
