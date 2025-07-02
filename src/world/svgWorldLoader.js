@@ -335,7 +335,7 @@ export async function loadSVGWorld(svgUrl, collisionMapSize, worldSize) {
     }
 
     // Podział worldCanvas na kafelki
-    const tileSize = 512;
+    const tileSize = 256;
     initTiles(worldCanvas, tileSize, worldSize);
 
     // 7. Pozycja startowa z SVG (id='START' w grupie ROAD)
