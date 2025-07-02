@@ -69,6 +69,10 @@ function drawArrowIcon(ctx, x, y, dir, color) {
 }
 
 function drawMenuScreen() {
+  // Ustaw tło body na grass.jpg
+  document.body.style.backgroundImage = "url('assets/images/grass.jpg')";
+  document.body.style.backgroundRepeat = 'repeat';
+  document.body.style.backgroundSize = 'auto';
   ctx.save();
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, canvas.width, canvas.height);

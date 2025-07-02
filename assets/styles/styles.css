@@ -3,7 +3,7 @@ body {
   margin: 0;
   overflow: hidden;
   background: #fff;
-  background: url('../images/grass.jpg') repeat;
+  background: #000;
 }
 
 canvas {
