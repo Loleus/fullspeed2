@@ -149,8 +149,10 @@ function menuLoop() {
 function menuClickHandler(e) {
   if (showMenuScreen && buttonRect) {
     const rect = canvas.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const mx = (e.clientX - rect.left) * scaleX;
+    const my = (e.clientY - rect.top) * scaleY;
     if (
       mx >= buttonRect.x && mx <= buttonRect.x + buttonRect.w &&
       my >= buttonRect.y && my <= buttonRect.y + buttonRect.h
@@ -170,8 +172,14 @@ function menuClickHandler(e) {
 canvas.addEventListener('click', menuClickHandler);
 
 function resize() {
-  canvas.width = innerWidth;
-  canvas.height = innerHeight;
+  // Jeśli okno jest mniejsze/równe 1366x768, canvas dopasowuje się do okna, inaczej ma stały rozmiar
+  if (window.innerWidth <= 1366 || window.innerHeight <= 768) {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  } else {
+    canvas.width = 1366;
+    canvas.height = 768;
+  }
   if (showMenuScreen) {
     drawMenuScreen();
   } else if (car) {
@@ -183,7 +191,10 @@ window.addEventListener('resize', resize);
 // ───────── INICJALIZACJA ─────────
 async function startGame() {
   try {
+    console.time('⏳ Cały startGame');
+    console.time('🌍 Ładowanie świata');
     await initWorldFromSVG('./assets/scenes/SCENE_3.svg', 1024, worldSize);
+    console.timeEnd('🌍 Ładowanie świata');
     const pos = (startPos && startPos.x !== undefined && startPos.y !== undefined) ? startPos : { x: 50, y: 50 };
     
     car = createCarWithPosition(pos);
@@ -201,12 +212,22 @@ async function startGame() {
     fvpCamera.angle = car.angle + Math.PI * 0.5; // Inicjalizuj z kątem samochodu + 90°
     
     resize();
-    showLoadingScreen = false;
     isMenuRunning = false; // Zatrzymaj pętlę menu
-    console.log('✅ Gra załadowana - pętla menu zatrzymana, rozpoczynam pętlę gry');
     canvas.removeEventListener('click', menuClickHandler);
     console.log('🧹 Listener na kliknięcie menu został usunięty');
-    requestAnimationFrame(loop);
+
+    // --- Dwie klatki "luzu" na ekranie ładowania ---
+    console.log('🕒 Oczekiwanie na dwie klatki przed startem gry...');
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        showLoadingScreen = false; // Zniknij ekran ładowania dopiero teraz!
+        console.log('✅ Gra załadowana - pętla menu zatrzymana, rozpoczynam pętlę gry');
+        window.focus();
+        console.log('🔎 Ustawiono focus na okno gry');
+        requestAnimationFrame(loop);
+        console.timeEnd('⏳ Cały startGame');
+      });
+    });
   } catch (error) {
     console.error('Błąd podczas inicjalizacji gry:', error);
     // Wyświetl błąd na ekranie
