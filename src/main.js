@@ -16,7 +16,8 @@ import { fvpCamera } from './render/cameraFvp.js';
 
 // ───────── ŚWIAT I CANVAS ─────────
 const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
+const ctx = canvas.getContext('2d', { alpha: false });
+ctx.imageSmoothingEnabled = false;
 const worldSize = CONFIG.WORLD.width;
 // ───────── AUTO ─────────
 let car = null;
@@ -238,6 +239,8 @@ async function startGame() {
 }
 
 // ───────── PĘTLA GŁÓWNA ─────────
+let frameId;
+
 function loop(now) {
   const dt = gameLoop.getDeltaTime(now);
   gameLoop.updateFPS(now);
@@ -275,7 +278,7 @@ function loop(now) {
   renderFrame(ctx, camera, car, carImg, gameLoop.getFPS(), input, CONFIG);
   drawHUD(ctx, gameLoop.getFPS(), car, CONFIG, input);
   
-  requestAnimationFrame(loop);
+  frameId = requestAnimationFrame(loop);
 }
 
 // --- Zamiast startGame() na starcie ---

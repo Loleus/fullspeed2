@@ -3,6 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <title>Full Speed 2 - world test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-control" content="no-store">
     <meta property="og:title" content="Full Speed 2" />
     <meta property="og:description" content="Rastrowanie świata" />
     <meta property="og:image" content="assets/images/fullspeed2.jpg" />
@@ -18,4 +20,45 @@
     </div>
     <script type="module" src="./src/main.js"></script>
   </body>
-</html>
+  <!DOCTYPE html>
+  <html lang="pl">
+    <head>
+      <meta charset="UTF-8" />
+      <title>Full Speed 2 - world test</title>
+      <meta property="og:title" content="Full Speed 2" />
+      <meta property="og:description" content="Rastrowanie świata" />
+      <meta property="og:image" content="assets/images/fullspeed2.jpg" />
+      <meta property="og:type" content="GAME" />
+      <meta property="og:url" content="https://loleus.github.io/fullspeed2/" />
+      <link rel="stylesheet" href="assets/styles/styles.css">
+    </head>
+    <body>
+      <canvas id="gameCanvas"></canvas>
+      <p id="engine-info">FULL SPEED 2 - TEST SWIATA</p>
+      <div id="camera-info">
+        Klawisz <b>V</b> – zmiana widoku kamery
+      </div>
+      <script>
+        // Wymuszenie wysokiego priorytetu dla karty
+        if (navigator.scheduling && navigator.scheduling.isInputPending) {
+          document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+              navigator.scheduling.isInputPending();
+            }
+          });
+        }
+        
+        // Prośba o blokadę uśpienia ekranu
+        if (navigator.wakeLock) {
+          (async () => {
+            try {
+              const wakeLock = await navigator.wakeLock.request('screen');
+            } catch (err) {
+              console.log('Wake Lock nie jest wspierany:', err);
+            }
+          })();
+        }
+      </script>
+      <script type="module" src="./src/main.js"></script>
+    </body>
+  </html>
