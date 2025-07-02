@@ -32,6 +32,7 @@ const gameLoop = new GameLoop();
 let showMenuScreen = true;
 let showLoadingScreen = false;
 let buttonRect = null;
+let isMenuRunning = false;
 
 function drawArrowIcon(ctx, x, y, dir, color) {
   ctx.save();
@@ -126,13 +127,22 @@ function drawLoadingScreen() {
 }
 
 function menuLoop() {
+  if (!isMenuRunning) {
+    console.log('🛑 Pętla menu zatrzymana - isMenuRunning = false');
+    return;
+  }
+  
   if (showMenuScreen || showLoadingScreen) {
     drawMenuScreen();
     requestAnimationFrame(menuLoop);
+  } else {
+    console.log('🔄 Zatrzymuję pętlę menu - gra się rozpoczęła');
+    isMenuRunning = false;
   }
 }
 
-canvas.addEventListener('click', function menuClickHandler(e) {
+// Handler kliknięcia do menu
+function menuClickHandler(e) {
   if (showMenuScreen && buttonRect) {
     const rect = canvas.getBoundingClientRect();
     const mx = e.clientX - rect.left;
@@ -141,13 +151,19 @@ canvas.addEventListener('click', function menuClickHandler(e) {
       mx >= buttonRect.x && mx <= buttonRect.x + buttonRect.w &&
       my >= buttonRect.y && my <= buttonRect.y + buttonRect.h
     ) {
+      console.log('🎮 Kliknięto START - rozpoczynam grę');
       showMenuScreen = false;
       showLoadingScreen = true;
+      isMenuRunning = true;
       menuLoop();
       startGame();
     }
+  } else if (!showMenuScreen && !showLoadingScreen) {
+    console.log('⚠️ Kliknięcie ignorowane - gra już działa');
   }
-});
+}
+
+canvas.addEventListener('click', menuClickHandler);
 
 function resize() {
   canvas.width = innerWidth;
@@ -182,6 +198,10 @@ async function startGame() {
     
     resize();
     showLoadingScreen = false;
+    isMenuRunning = false; // Zatrzymaj pętlę menu
+    console.log('✅ Gra załadowana - pętla menu zatrzymana, rozpoczynam pętlę gry');
+    canvas.removeEventListener('click', menuClickHandler);
+    console.log('🧹 Listener na kliknięcie menu został usunięty');
     requestAnimationFrame(loop);
   } catch (error) {
     console.error('Błąd podczas inicjalizacji gry:', error);
@@ -236,4 +256,6 @@ function loop(now) {
 // --- Zamiast startGame() na starcie ---
 resize();
 drawMenuScreen();
+isMenuRunning = true;
+console.log('🏠 Ekran menu uruchomiony - pętla menu aktywna');
 menuLoop();
