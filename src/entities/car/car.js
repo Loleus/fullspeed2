@@ -8,9 +8,9 @@ export function createCarWithPosition(pos) {
     vel: { x: 0, y: 0 },
     angle: Math.PI / 4,
     steering: 0,
-    length: 135,
-    width: 75,
-    radius: 55, // promień kolizji - średnia z width i length
+    length: 90,
+    width: 50,
+    radius: 40, // promień kolizji - średnia z width i length
     throttle: 0,
     gear: 'D',
     speed: 0,
