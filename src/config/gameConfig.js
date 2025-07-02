@@ -11,7 +11,7 @@ export const CONFIG = {
   FRICTION_MULT: 1 - 0.02, // mnożnik tarcia (prekalkulowany)
   DRAG: 0.1, // opór powietrza
   GRIP: 1, // przyczepność
-  WHEELBASE: 70, // rozstaw osi
+  WHEELBASE: 50, // rozstaw osi
   ENGINE_MULTIPLIER: 800, // mnożnik mocy silnika
   MAX_STEERING: Math.PI / 5, // maksymalny kąt skrętu
   STEERING_SPEED: 0.005, // szybkość skręcania
