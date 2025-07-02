@@ -16,7 +16,7 @@ import { fvpCamera } from './render/cameraFvp.js';
 
 // ───────── ŚWIAT I CANVAS ─────────
 const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d', { alpha: false });
+const ctx = canvas.getContext('2d');
 ctx.imageSmoothingEnabled = false;
 const worldSize = CONFIG.WORLD.width;
 // ───────── AUTO ─────────
