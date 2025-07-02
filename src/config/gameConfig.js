@@ -13,7 +13,7 @@ export const CONFIG = {
   GRIP: 1, // przyczepność
   WHEELBASE: 70, // rozstaw osi
   ENGINE_MULTIPLIER: 800, // mnożnik mocy silnika
-  MAX_STEERING: Math.PI / 7, // maksymalny kąt skrętu
+  MAX_STEERING: Math.PI / 5, // maksymalny kąt skrętu
   STEERING_SPEED: 0.005, // szybkość skręcania
   STEERING_RETURN: 0.085, // powrót kierownicy
   STOP_EPS: 0.0001, // próg zatrzymania
