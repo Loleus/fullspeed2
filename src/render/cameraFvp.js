@@ -8,7 +8,8 @@ export const fvpCamera = {
   y: 0,
   angle: 0,
   speedLerp: 0,
-  currentOffsetX: 0
+  currentOffsetX: 0,
+  currentOffsetY: 0
 };
 
 // Ekran FVP
@@ -24,7 +25,8 @@ const DEAD_ZONE = 0.15;
 const DEAD_ZONE_INV = 1 / (1 - DEAD_ZONE);
 const ANGLE_LERP_SPEED = 0.06;
 const HORIZONTAL_LERP_BASE = 0.06;
-const VERTICAL_LERP_SPEED = 0.06;
+const VERTICAL_LERP_SPEED = 0.10;
+const baseLerpSpeed = 1.0; // ogólny mnożnik prędkości lerpowania
 
 export function updateCamera(car, camera, canvas, worldSize) {
   // Kamera FVP zawsze śledzi auto
@@ -38,13 +40,13 @@ export function updateFvpCameraAndScreen(car, canvas) {
   const canvasWidth = canvas.width;
   const canvasHeight = canvas.height;
   const centerX = canvasWidth * 0.5;
-  const maxAutoOffset = canvasWidth * 0.15;
-  const startY = canvasHeight * 0.85; // Startowa pozycja 20% od dołu
-  const minScreenY = canvasHeight * 0.90; // Min 10% od dołu przy cofaniu
-  const maxScreenY = canvasHeight * 0.70; // Max 45% od dołu przy maksymalnej prędkości
+  const maxAutoOffset = canvasWidth * 0.092;
+  const startY = canvasHeight * 0.85; // Startowa pozycja 15% od dołu
+  const maxAutoOffsetY = canvasHeight * 0.45; // Clamp pionowy 45%
   
   // Kamera FVP podąża za autem z opóźnieniem zależnym od siły odśrodkowej
-  const slideLerpSpeed = Math.max(0.005, HORIZONTAL_LERP_BASE - car.slideForce * 10);
+  // Im większa siła odśrodkowa, tym większe opóźnienie (mniejsze lerpowanie)
+  const slideLerpSpeed = Math.max(0.005, HORIZONTAL_LERP_BASE / (1 + Math.abs(car.slideForce)) * baseLerpSpeed);
   fvpCamera.x = lerp(fvpCamera.x, car.pos.x, slideLerpSpeed);
   fvpCamera.y = lerp(fvpCamera.y, car.pos.y, slideLerpSpeed);
   
@@ -54,34 +56,31 @@ export function updateFvpCameraAndScreen(car, canvas) {
   
   // Poziom: swoboda 40% ekranu (20% od środka)
   const speedFactor = Math.min(Math.abs(car.speed) * SPEED_FACTOR_INV, 1.0);
-  const targetOffsetX = car.vel.x * speedFactor * 3.0;
+  const targetOffsetX = car.centrifugalForce * 12.0;
   
   // Lerp pozycji auta z opóźnieniem
-  const horizontalLerpSpeed = Math.max(0.01, HORIZONTAL_LERP_BASE - car.slideForce * 10);
-  if (Math.abs(targetOffsetX) > 0.1) {
-    fvpCamera.currentOffsetX = lerp(fvpCamera.currentOffsetX, targetOffsetX, horizontalLerpSpeed);
-  }
+  const horizontalLerpSpeed = 0.10;
+  fvpCamera.currentOffsetX = lerp(fvpCamera.currentOffsetX, targetOffsetX, horizontalLerpSpeed);
   
   // Ogranicz pozycję auta do 20% od środka
   fvpScreen.screenX = centerX + Math.max(-maxAutoOffset, Math.min(maxAutoOffset, fvpCamera.currentOffsetX));
 
-  // Pion: płynne przesuwanie na podstawie lerpowanej prędkości
+  // Wylicz offset pionowy na podstawie prędkości auta (uciekanie w pionie)
   let speedNorm = Math.abs(car.speed * MAX_SPEED_INV);
   if (speedNorm < DEAD_ZONE) {
     speedNorm = 0;
   } else {
     speedNorm = (speedNorm - DEAD_ZONE) * DEAD_ZONE_INV;
   }
-  
-  // Użyj biegów do określenia kierunku jazdy
+  // Kierunek: do góry przy jeździe do przodu, w dół przy cofaniu
   if (car.gear === 'D') speedNorm = -speedNorm;
   speedNorm = Math.max(-1, Math.min(1, speedNorm));
-  
-  fvpCamera.speedLerp = lerp(fvpCamera.speedLerp, speedNorm, VERTICAL_LERP_SPEED);
-  
-  if (fvpCamera.speedLerp >= 0) {
-    fvpScreen.screenY = startY - (startY - minScreenY) * fvpCamera.speedLerp;
-  } else {
-    fvpScreen.screenY = startY - (startY - maxScreenY) * (-fvpCamera.speedLerp);
-  }
+
+  // Lerp offsetu pionowego
+  const targetOffsetY = speedNorm * maxAutoOffsetY;
+  fvpCamera.currentOffsetY = lerp(fvpCamera.currentOffsetY, targetOffsetY, VERTICAL_LERP_SPEED);
+  // Clamp offsetu pionowego
+  fvpCamera.currentOffsetY = Math.max(-maxAutoOffsetY, Math.min(maxAutoOffsetY, fvpCamera.currentOffsetY));
+
+  fvpScreen.screenY = startY + fvpCamera.currentOffsetY;
 } 

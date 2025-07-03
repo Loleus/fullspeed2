@@ -67,7 +67,7 @@ export function updateCarPhysics(car, dt, surf, input, config, worldSize) {
   const slideY = -lat * R.y * gripDt;
   
   // Zapisz siłę poślizgu dla kamery FVP
-  car.slideForce = Math.hypot(slideX, slideY);
+  car.slideForce = lat;
 
   // Zoptymalizowane: użyj normalnej masy + dodaj siłę hamowania
   car.vel.x += (engineX + dragX + slideX + brakeX) * effectiveInvMass;
@@ -103,6 +103,16 @@ export function updateCarPhysics(car, dt, surf, input, config, worldSize) {
     car.vel.x = 0;
     car.vel.y = 0;
   }
+
+  // Siła odśrodkowa: F = v^2 / r (na zewnątrz łuku, tylko powyżej minimalnej prędkości)
+  let centrifugalForce = 0;
+  const speed = Math.hypot(car.vel.x, car.vel.y);
+  if (Math.abs(smoothedSteering) > 0.01 && speed > 1.5) {
+    const radius = config.WHEELBASE / Math.tan(smoothedSteering);
+    centrifugalForce = (speed * speed) / Math.abs(radius);
+    centrifugalForce *= -Math.sign(smoothedSteering); // minus: na zewnątrz zakrętu
+  }
+  car.centrifugalForce = centrifugalForce;
 
   car.steering = smoothedSteering;
 }
