@@ -24,9 +24,9 @@ const MAX_SPEED_INV = 1 / 50.0;
 const DEAD_ZONE = 0.15;
 const DEAD_ZONE_INV = 1 / (1 - DEAD_ZONE);
 const ANGLE_LERP_SPEED = 0.06;
-const HORIZONTAL_LERP_BASE = 0.06;
+const HORIZONTAL_LERP_BASE = 0.0005;
 const VERTICAL_LERP_SPEED = 0.10;
-const baseLerpSpeed = 1.0; // ogólny mnożnik prędkości lerpowania
+const baseLerpSpeed = 1.0;// ogólny mnożnik prędkości lerpowania
 
 export function updateCamera(car, camera, canvas, worldSize) {
   // Kamera FVP zawsze śledzi auto
@@ -40,7 +40,7 @@ export function updateFvpCameraAndScreen(car, canvas) {
   const canvasWidth = canvas.width;
   const canvasHeight = canvas.height;
   const centerX = canvasWidth * 0.5;
-  const maxAutoOffset = canvasWidth * 0.01;
+  const maxAutoOffset = canvasWidth * 0.04
   const startY = canvasHeight * 0.85; // Startowa pozycja 15% od dołu
   const maxAutoOffsetY = canvasHeight * 0.45; // Clamp pionowy 45%
   
@@ -56,7 +56,7 @@ export function updateFvpCameraAndScreen(car, canvas) {
   
   // Poziom: swoboda 40% ekranu (20% od środka)
   const speedFactor = Math.min(Math.abs(car.speed) * SPEED_FACTOR_INV, 1.0);
-  const targetOffsetX = car.centrifugalForce * 12.0;
+  const targetOffsetX = car.centrifugalForce * 25.0;
   
   // Lerp pozycji auta z opóźnieniem
   const horizontalLerpSpeed = 0.10;
