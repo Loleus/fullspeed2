@@ -404,3 +404,67 @@ export async function loadSVGWorld(svgUrl, collisionMapSize, worldSize) {
     throw error;
   }
 }
+
+export async function createMinimapFromSVG(svgUrl, outputSize = 128) {
+  try {
+    const response = await fetch(svgUrl);
+    if (!response.ok) throw new Error(`Failed to load SVG: ${response.status}`);
+    const svgText = await response.text();
+    
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(svgText, 'image/svg+xml');
+    const roadGroup = doc.querySelector('#ROAD');
+    if (!roadGroup) throw new Error('ROAD group not found in SVG');
+    const trackPaths = Array.from(roadGroup.querySelectorAll('path')).filter(pathElem => pathElem.id && pathElem.id.startsWith('TRACK_'));
+    if (!trackPaths.length) throw new Error('No TRACK_ path in ROAD group in SVG');
+
+    const canvas = document.createElement('canvas');
+    canvas.width = outputSize;
+    canvas.height = outputSize;
+    const ctx = canvas.getContext('2d');
+    
+    // Jaśniejsze tło
+    ctx.fillStyle = 'rgba(200, 200, 200, 0.7)';
+    ctx.fillRect(0, 0, outputSize, outputSize);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(0, 0, outputSize, outputSize);
+
+    // SVG bez transformacji skali!
+    let pathsSVG = '';
+    trackPaths.forEach(pathElem => {
+      pathsSVG += `<path d="${pathElem.getAttribute('d')}" fill="#111" stroke="none"/>`;
+    });
+    const scaledSVG = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+        ${pathsSVG}
+      </svg>
+    `;
+
+    const svgBlob = new Blob([scaledSVG], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(svgBlob);
+    
+    await new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        // Przeskaluj całość SVG do 128x128
+        ctx.drawImage(img, 0, 0, outputSize, outputSize);
+        URL.revokeObjectURL(url);
+        resolve();
+      };
+      img.src = url;
+    });
+    
+    return canvas;
+  } catch (error) {
+    console.error('Minimap creation failed:', error);
+    const fallback = document.createElement('canvas');
+    fallback.width = fallback.height = 128;
+    const ctx = fallback.getContext('2d');
+    ctx.fillStyle = 'rgba(200, 200, 200, 0.7)';
+    ctx.fillRect(0, 0, 128, 128);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.strokeRect(0, 0, 128, 128);
+    return fallback;
+  }
+}

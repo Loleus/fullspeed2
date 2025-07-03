@@ -13,6 +13,8 @@ import { handleObstacleCollisionWithPolygon } from './entities/obstacles/obstacl
 import { GameLoop } from './core/gameLoop.js';
 import { createCarImage } from './entities/car/carRenderer.js';
 import { fvpCamera } from './render/cameraFvp.js';
+import { createMinimapFromSVG } from './world/svgWorldLoader.js';
+import { drawMinimap } from './render/hud.js';
 
 // ───────── ŚWIAT I CANVAS ─────────
 const canvas = document.getElementById('gameCanvas');
@@ -34,6 +36,8 @@ let showMenuScreen = true;
 let showLoadingScreen = false;
 let buttonRect = null;
 let isMenuRunning = false;
+
+let minimapCanvas = null;
 
 function drawArrowIcon(ctx, x, y, dir, color) {
   ctx.save();
@@ -211,7 +215,10 @@ async function startGame() {
     fvpCamera.x = car.pos.x;
     fvpCamera.y = car.pos.y;
     fvpCamera.angle = car.angle + Math.PI * 0.5; // Inicjalizuj z kątem samochodu + 90°
-    
+
+    // --- MINIMAPA ---
+    minimapCanvas = await createMinimapFromSVG('./assets/scenes/SCENE_3.svg');
+
     resize();
     isMenuRunning = false; // Zatrzymaj pętlę menu
     canvas.removeEventListener('click', menuClickHandler);
@@ -277,6 +284,10 @@ function loop(now) {
   // Renderowanie
   renderFrame(ctx, camera, car, carImg, gameLoop.getFPS(), input, CONFIG);
   drawHUD(ctx, gameLoop.getFPS(), car, CONFIG, input);
+  
+  if (minimapCanvas && car) {
+    drawMinimap(ctx, minimapCanvas, car, worldSize);
+  }
   
   frameId = requestAnimationFrame(loop);
 }

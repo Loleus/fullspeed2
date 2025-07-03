@@ -57,3 +57,33 @@ export function drawHUD(ctx, fps, car, config, keys) {
   // ctx.fillText('Obroty: ' + rpm + ' rpm', 12, 104);
   ctx.restore();
 }
+
+export function drawMinimap(ctx, minimapCanvas, car, worldSize = 1024) {
+  if (!minimapCanvas || !car?.pos) return;
+
+  const size = 128;
+  const margin = 10;
+  const fpsHeight = 30;
+  const x = margin;
+  const y = margin + fpsHeight;
+
+  ctx.save();
+  ctx.globalAlpha = 0.8;
+  ctx.drawImage(minimapCanvas, x, y, size, size);
+  ctx.globalAlpha = 1.0;
+
+  // Skalowanie pozycji samochodu względem rzeczywistego świata!
+  const px = Math.max(0, Math.min(car.pos.x, worldSize));
+  const py = Math.max(0, Math.min(car.pos.y, worldSize));
+  const carX = x + (px / worldSize * size);
+  const carY = y + (py / worldSize * size);
+
+  ctx.fillStyle = '#FF0000';
+  ctx.beginPath();
+  ctx.arc(carX, carY, 2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#FFFFFF';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.restore();
+}
