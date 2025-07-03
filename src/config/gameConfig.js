@@ -17,7 +17,7 @@ export const CONFIG = {
   STEERING_SPEED: 0.005, // szybkość skręcania
   STEERING_RETURN: 0.085, // powrót kierownicy
   STOP_EPS: 0.0001, // próg zatrzymania
-  WALL_BOUNCE: 0.35, // odbicie od ściany
+  WALL_BOUNCE: 0.55, // odbicie od ściany
   THROTTLE_RAMP: 0.02, // narastanie gazu
   WORLD: { width: 4096, height: 4096} // rozmiar świata
 };

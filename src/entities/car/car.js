@@ -10,7 +10,7 @@ export function createCarWithPosition(pos) {
     steering: 0,
     length: 90,
     width: 50,
-    radius: 40, // promień kolizji - średnia z width i length
+    radius: 51, // promień kolizji - średnia z width i length
     throttle: 0,
     gear: 'D',
     speed: 0,

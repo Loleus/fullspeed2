@@ -11,5 +11,5 @@ Projekt został zorganizowany w katalogi tematyczne, gdzie każdy katalog odpowi
 - **`src/world/`** - Świat gry i jego fizyka
 - **`src/input/`** - Obsługa wejścia użytkownika
 - **`src/render/`** - System renderowania i interfejs użytkownika
-- **`src/physics/`** - Wspólne funkcje fizyki
+
 
