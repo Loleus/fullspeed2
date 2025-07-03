@@ -30,12 +30,7 @@ export function drawWorldTiled(ctx, camera, canvasWidth, canvasHeight, car = nul
 
   if (getCameraMode() === 'fvp' && car && fvpScreen) {
     // W trybie FVP: prosty widok z obrotem względem pozycji samochodu
-    
-    ctx.translate(canvasWidth * 0.5, canvasHeight * 0.9);
-    
-    // Przesuń świat w dół, aby punkt startu był pod samochodem
-    // ctx.translate(0, canvasHeight * 0.3); // Przesuń świat w dół o 30% wysokości
-    
+    ctx.translate(canvasWidth * 0.5, canvasHeight * 0.85);
     ctx.rotate(-fvpCamera.angle); // Obróć świat przeciwnie do kamery
     ctx.translate(-car.pos.x, -car.pos.y); // Przesuń świat względem pozycji samochodu
     
@@ -111,9 +106,8 @@ export function renderFrame(ctx, camera, car, carImg, fps, keys, config) {
   
   if (getCameraMode() === 'fvp') {
     ctx.save();
-    // Samochód w FVP używa pozycji z fvpScreen (z poruszaniem w osi Y)
-    ctx.translate(currentFvpScreen ? currentFvpScreen.screenX : canvasWidthHalf, currentFvpScreen ? currentFvpScreen.screenY : canvasHeight * 0.8);
-    
+    // Samochód w FVP używa pozycji z fvpScreen (clamp w osi X)
+    ctx.translate(currentFvpScreen ? currentFvpScreen.screenX : canvasWidthHalf, currentFvpScreen ? currentFvpScreen.screenY : canvasHeight * 0.85);
     // Obróć samochód względem różnicy między kątem samochodu a kątem kamery
     // Samochód ma być zawsze skierowany "do góry" na ekranie
     const carAngleDiff = car.angle - fvpCamera.angle;
