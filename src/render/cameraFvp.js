@@ -40,7 +40,7 @@ export function updateFvpCameraAndScreen(car, canvas) {
   const canvasWidth = canvas.width;
   const canvasHeight = canvas.height;
   const centerX = canvasWidth * 0.5;
-  const maxAutoOffset = canvasWidth * 0.092;
+  const maxAutoOffset = canvasWidth * 0.01;
   const startY = canvasHeight * 0.85; // Startowa pozycja 15% od dołu
   const maxAutoOffsetY = canvasHeight * 0.45; // Clamp pionowy 45%
   
