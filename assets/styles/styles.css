@@ -5,13 +5,7 @@ body {
   overflow: hidden;
   height: 100%;
   width: 100%;
-  background: #fff;
   background: #000;
-}
-
-canvas {
-  display: block;
-  background: none; /* ciemnozielony, trawa */
 }
 
 #engine-info {

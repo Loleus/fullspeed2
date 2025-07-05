@@ -198,7 +198,7 @@ async function startGame() {
   try {
     console.time('⏳ Cały startGame');
     console.time('🌍 Ładowanie świata');
-    await initWorldFromSVG('./assets/scenes/SCENE_3.svg', 1024, worldSize);
+    await initWorldFromSVG('./assets/scenes/SCENE_1.svg', 1024, worldSize);
     console.timeEnd('🌍 Ładowanie świata');
     const pos = (startPos && startPos.x !== undefined && startPos.y !== undefined) ? startPos : { x: 50, y: 50 };
     
@@ -217,7 +217,7 @@ async function startGame() {
     fvpCamera.angle = car.angle + Math.PI * 0.5; // Inicjalizuj z kątem samochodu + 90°
 
     // --- MINIMAPA ---
-    minimapCanvas = await createMinimapFromSVG('./assets/scenes/SCENE_3.svg');
+    minimapCanvas = await createMinimapFromSVG('./assets/scenes/SCENE_1.svg');
 
     resize();
     isMenuRunning = false; // Zatrzymaj pętlę menu

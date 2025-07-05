@@ -200,7 +200,8 @@ export async function loadSVGWorld(svgUrl, collisionMapSize, worldSize) {
 
     // 2. Przeszkody (z grupy OBSTACLES) - potem przeszkody (nadpisują drogi)
     if (obstaclesGroup) {
-      const obstacles = obstaclesGroup.querySelectorAll('[id^="1_"], [id^="2_"], [id^="3_"], [id^="4_"], [id^="5_"], [id^="6_"], [id^="7_"], [id^="8_"], [id^="9_"], [id^="10_"]');
+      // Uniwersalny selektor dla wszystkich przeszkód z dwucyfrowymi numerami (01, 02, 03, ..., 99)
+      const obstacles = obstaclesGroup.querySelectorAll('[id*="_stone"]');
       for (const obstacle of obstacles) {
         // Utwórz tymczasowy canvas dla przeszkody
         const tempCanvas = document.createElement('canvas');
@@ -286,7 +287,7 @@ export async function loadSVGWorld(svgUrl, collisionMapSize, worldSize) {
 
     // Tekstury przeszkód na worldCanvas (tylko dla wyświetlania, nie dla kolizji)
     if (obstaclesGroup) {
-      const obstacles = obstaclesGroup.querySelectorAll('[id^="1_"], [id^="2_"], [id^="3_"], [id^="4_"], [id^="5_"], [id^="6_"], [id^="7_"], [id^="8_"], [id^="9_"], [id^="10_"]');
+      const obstacles = obstaclesGroup.querySelectorAll('[id*="_stone"]');
       for (const obs of obstacles) {
         const obstacleType = obs.id.split('_')[1] || 'obstacle';
         // Utwórz Path2D z kształtu przeszkody (przeskalowany z SVG viewBox na worldCanvas)
@@ -335,7 +336,7 @@ export async function loadSVGWorld(svgUrl, collisionMapSize, worldSize) {
     }
 
     // Podział worldCanvas na kafelki
-    const tileSize = 512;
+    const tileSize = 256;
     initTiles(worldCanvas, tileSize, worldSize);
 
     // 7. Pozycja startowa z SVG (id='START' w grupie ROAD)
@@ -369,7 +370,7 @@ export async function loadSVGWorld(svgUrl, collisionMapSize, worldSize) {
     }
     const obstaclePolys = [];
     if (obstaclesGroup) {
-      obstaclesGroup.querySelectorAll('path[id^="1_"], path[id^="2_"], path[id^="3_"], path[id^="4_"], path[id^="5_"], path[id^="6_"], path[id^="7_"], path[id^="8_"], path[id^="9_"], path[id^="10_"]').forEach((pathElem, index) => {
+      obstaclesGroup.querySelectorAll('path[id*="_stone"]').forEach((pathElem, index) => {
         const poly = pathToPoly(pathElem);
         if (poly) {
           obstaclePolys.push(poly);
